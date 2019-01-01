@@ -3,14 +3,13 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import java.util.HashMap;
 
 /**
  * Created by Prof-Mohamed Atef on 12/28/2018.
  */
 
-class SessionManagement {
+public class SessionManagement {
     public static SharedPreferences pref;
     public static SharedPreferences.Editor editor;
     public static Context _context;
@@ -37,15 +36,15 @@ class SessionManagement {
         editor.commit();
 
         // After logout redirect user to Loing Activity
-        Intent i = new Intent(_context, LoginActivity.class);
+//        Intent i = new Intent(_context, SplashScreen.class);
         // Closing all the Activities
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         // Add new Flag to start new Activity
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         // Staring Login Activity
-        _context.startActivity(i);
+//        _context.startActivity(i);
     }
 
 

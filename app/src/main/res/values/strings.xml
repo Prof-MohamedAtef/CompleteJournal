@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Journal_capstonNanodegree</string>
+    <string name="app_name">Info News</string>
+    <string name="loading">Loading ..</string>
+
+    <string name="facebook_app_id">383082655772408</string>
+    <string name="fb_login_protocol_scheme">fb383082655772408</string>
 </resources>

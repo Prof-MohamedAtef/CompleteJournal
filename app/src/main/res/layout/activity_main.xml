@@ -4,14 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.MainActivity">
+    android:padding="@dimen/padding_authentication"
+    tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.AuthenticationActivity"
+    android:orientation="vertical">
+
     <com.facebook.login.widget.LoginButton
     android:id="@+id/fblogin_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
-    android:layout_marginTop="20dp"
-    android:layout_marginBottom="20dp" />
+    android:layout_marginTop="30dp"
+    android:layout_marginBottom="30dp" />
     <com.google.android.gms.common.SignInButton
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"

@@ -3,6 +3,9 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -10,10 +13,22 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -25,23 +40,36 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 /**
  * Created by Prof-Mohamed Atef on 12/31/2018.
  */
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
+public class AuthenticationActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
 
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     SignInButton Gbtn_sign_in;
     GoogleSignInAccount GAccessToken;
+    CallbackManager callbackManager;
+    String currentSignature;
+    AccessTokenTracker accessTokenTracker;
+    AccessToken FBaccessToken;
+    LoginButton fbloginButton;
     SessionManagement sessionManagement;
     GoogleApiClient mGoogleApiClient;
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     String Google_personName;
     String Google_personPhotoUrl;
     String Google_email, Google_AccessToken,GoogleUserID;
@@ -52,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_main);
         checkConnection();
         sessionManagement=new SessionManagement(getApplicationContext());
@@ -88,6 +118,68 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     startActivityForResult(signInIntent, RC_SIGN_IN);
                 }
             });
+            /*
+            Facebook SDK usage
+             */
+            callbackManager = CallbackManager.Factory.create();
+
+            try {
+                PackageInfo info = getPackageManager().getPackageInfo(
+                        "fbdemo.androidbeasts.com.facebookdemo",
+                        PackageManager.GET_SIGNATURES);
+                for (Signature signature : info.signatures) {
+                    MessageDigest md = MessageDigest.getInstance("SHA");
+                    md.update(signature.toByteArray());
+                    currentSignature = Base64.encodeToString(md.digest(), Base64.DEFAULT);
+                    Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+                    Log.e(LOG_TAG, "KeyHash" + Base64.encodeToString(md.digest(), Base64.DEFAULT));
+                    Log.d("KeyHash:", currentSignature);
+                    Log.e(LOG_TAG, "KeyHash is:" + currentSignature);
+                    Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+
+            } catch (NoSuchAlgorithmException e) {
+            }
+            callbackManager = CallbackManager.Factory.create();
+            fbloginButton = (LoginButton) findViewById(R.id.fblogin_button);
+            fbloginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    LoginManager.getInstance().logInWithReadPermissions(AuthenticationActivity.this, Arrays.asList("public_profile", "email"));
+                    FBaccessToken = AccessToken.getCurrentAccessToken();
+                }
+            });
+            accessTokenTracker = new AccessTokenTracker() {
+                @Override
+                protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+                }
+            };
+            // If the access token is available already assign it.
+            FBaccessToken = AccessToken.getCurrentAccessToken();
+            OptionsEntity.FBAccessToken=FBaccessToken;
+            // Callback registration
+            fbloginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    // App code
+                    Toast.makeText(getApplicationContext(), "Facebook Login success", Toast.LENGTH_SHORT).show();
+                    FBaccessToken = AccessToken.getCurrentAccessToken();
+                }
+
+                @Override
+                public void onCancel() {
+                    // App code
+                    Toast.makeText(getApplicationContext(), "Facebook Login cancelled", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(FacebookException exception) {
+                    // App code
+                    Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            fbloginButton.setReadPermissions(Arrays.asList("public_profile"));
         }else if(!isConnected()){
             Toast.makeText(getApplicationContext(), "Connection Disabled", Toast.LENGTH_SHORT).show();
         }
@@ -130,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private void SharedPrefAndDiaryEntryRedirectGoogleDetails() {
         sessionManagement.createLoginSession(Google_personName,Google_email,Google_personPhotoUrl,Google_AccessToken, GoogleUserID);
         sessionManagement.createLoginSessionType("G");
-        Intent intent_create=new Intent(this,MainActivity.class);
+        Intent intent_create=new Intent(this,HomeActivity.class);
         startActivity(intent_create);
     }
 
@@ -149,9 +241,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
         if (isConnected()){
             if (requestCode == RC_SIGN_IN) {
@@ -162,8 +254,80 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                     handleSignInResult(result1);
                 }
             }
+            if (FBaccessToken!=null){
+                FBaccessToken.getCurrentAccessToken().getPermissions();
+                FBaccessToken.getCurrentAccessToken().getDeclinedPermissions();
+                Log.i("accessToken", FBaccessToken.toString());
+                GraphRequest UserDataRequest = GraphRequest.newMeRequest(FBaccessToken, new GraphRequest.GraphJSONObjectCallback(){
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        Log.i("FBLoginActivity", response.toString());
+//                     Get facebook data from login
+                        final Bundle bFacebookData = getFacebookData(object);
+                        if (bFacebookData!=null||GAccessToken!=null){
+                            if (bFacebookData!=null){
+                                SharedPrefAndDiaryEntryRedirectFBDetails();
+                            }
+                        }
+                    }
+                });
+
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location");
+                UserDataRequest.setParameters(parameters);
+                UserDataRequest.executeAsync();
+            }
         }else  if (!isConnected()){
             Toast.makeText(getApplicationContext(), "Connection Disabled", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void SharedPrefAndDiaryEntryRedirectFBDetails() {
+        sessionManagement.createLoginSession(FB_UserName,FB_Email,FB_ProfilePic,FBaccessToken.toString(), FB_id);
+        sessionManagement.createLoginSessionType("F");
+        Intent intent_create=new Intent(this,HomeActivity.class);
+        startActivity(intent_create);
+    }
+
+    String FB_id, FB_Email, FB_FirstName, FB_LastName, FB_UserName, FB_ProfilePic;
+    private Bundle getFacebookData(JSONObject object) {
+
+        try {
+            Bundle bundle = new Bundle();
+            if (object.has("id")) {
+                FB_id = object.getString("id");
+            }
+            try {
+                URL profile_pic = new URL("https://graph.facebook.com/" + FB_id + "/picture?width=200&height=150");
+                Log.i("profile_pic", profile_pic + "");
+                FB_ProfilePic=profile_pic.toString();
+                bundle.putString("profile_pic", profile_pic.toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return null;
+            }
+            bundle.putString("idFacebook", FB_id);
+            if (object.has("first_name"))
+                FB_FirstName=object.getString("first_name").toString();
+            bundle.putString("first_name", object.getString("first_name"));
+            if (object.has("last_name"))
+                FB_LastName=object.getString("last_name").toString();
+            bundle.putString("last_name", object.getString("last_name"));
+            if (object.has("email"))
+                FB_Email= object.getString("email").toString();
+            bundle.putString("email", object.getString("email"));
+            if (object.has("gender"))
+                bundle.putString("gender", object.getString("gender"));
+            if (object.has("birthday"))
+                bundle.putString("birthday", object.getString("birthday"));
+            if (object.has("location"))
+                bundle.putString("location", object.getJSONObject("location").getString("name"));
+            FB_UserName=FB_FirstName+" "+FB_LastName;
+            return bundle;
+        }
+        catch(JSONException e) {
+            Log.d(LOG_TAG,"Error parsing JSON");
+            return null;
         }
     }
 
