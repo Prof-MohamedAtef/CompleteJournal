@@ -37,7 +37,7 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
     @NonNull
     @Override
     public NewsApiRecyclerAdapter.ViewHOlder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recipes_layout, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.news_api_list_item, null);
         RecyclerView.ViewHolder viewHolder = new NewsApiRecyclerAdapter.ViewHOlder(view);
         return (NewsApiRecyclerAdapter.ViewHOlder) viewHolder;
     }

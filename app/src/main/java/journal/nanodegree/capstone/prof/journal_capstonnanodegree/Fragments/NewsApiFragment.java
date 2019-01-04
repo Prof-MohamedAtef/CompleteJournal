@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsApiRecyclerAdapter;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.NewsApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
@@ -25,6 +27,9 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
 
     private java.lang.String Urgent="urgent";
     String URL;
+    private boolean TwoPane;
+    RecyclerView recyclerView;
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -44,12 +49,18 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        View rootView=inflater.inflate(R.layout.fragment_ui_identifier,container,false);
+        recyclerView=(RecyclerView)rootView.findViewById(R.id.recycler_view);
+        if (rootView.findViewById(R.id.two_pane)!=null){
+            TwoPane=true;
+            Config.TwoPane=true;
+        }
+        return rootView;
     }
 
     @Override
     public void onTaskCompleted(ArrayList<OptionsEntity> result) {
-        NewsApiRecyclerAdapter mAdapter=new RecipesMasterListAdapter(getActivity(),result, TwoPane);
+        NewsApiRecyclerAdapter mAdapter=new NewsApiRecyclerAdapter(getActivity(),result, TwoPane);
         mAdapter.notifyDataSetChanged();
         RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);

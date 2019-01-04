@@ -16,6 +16,7 @@ public class Config {
     private static String TAG = Config.class.toString();
     public static Context mContext;
     public static CoordinatorLayout mCoordinatorLayout;
+    public static boolean TwoPane;
 
     static {
         URL url = null;
