@@ -26,16 +26,17 @@ public class SplashActivity extends AppCompatActivity {
                     finish();
                 }
             },5500);
-        }else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
-                    hideProgressDialog();
-                    finish();
-                }
-            },5500);
         }
+//        else {
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
+//                    hideProgressDialog();
+//                    finish();
+//                }
+//            },5500);
+//        }
     }
 
     @Override

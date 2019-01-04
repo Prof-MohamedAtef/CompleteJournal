@@ -17,4 +17,9 @@
     <color name="divider">#BDBDBD</color>
     <color name="blue">#10a2e3</color>
 
+    <color name="theme_primary2">#880e4f</color>
+    <color name="theme_primary_dark2">#560027</color>
+    <color name="theme_accent2">#bc477b</color>
+
+
 </resources>

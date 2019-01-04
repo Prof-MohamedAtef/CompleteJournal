@@ -4,16 +4,26 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "journal.nanodegree.capstone.prof.journal_capstonnanodegree"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug{
+            buildConfigField 'String', "ApiKey", myApiKey
+            resValue 'string', "api_key", myApiKey
+            buildConfigField 'String', "token", token
+            resValue 'string', "token", token
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "ApiKey", myApiKey
+            resValue 'string', "api_key", myApiKey
+            buildConfigField 'String', "token", token
+            resValue 'string', "token", token
         }
     }
 }
@@ -26,6 +36,10 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:design:27.1.1'
     compile 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    compile "com.android.support:palette-v7:27.1.1"
 
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.google.firebase:firebase-auth:16.0.5'
