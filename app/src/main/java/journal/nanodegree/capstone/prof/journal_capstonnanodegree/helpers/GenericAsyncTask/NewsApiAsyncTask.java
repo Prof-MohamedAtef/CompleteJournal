@@ -1,5 +1,7 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -14,6 +16,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
 /**
@@ -23,7 +27,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<OptionsEntity>> {
 
     private final String LOG_TAG = NewsApiAsyncTask.class.getSimpleName();
-
+    private ProgressDialog dialog;
     public JSONObject ArticlesJson;
     public JSONArray ArticlesDataArray;
     public JSONObject oneArticleData;
@@ -49,12 +53,20 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
 
 
     public OnTaskCompleted onTaskCompleted;
+    Context mContext;
 
-    public NewsApiAsyncTask(OnTaskCompleted onTaskCompleted){
+    public NewsApiAsyncTask(OnTaskCompleted onTaskCompleted, Context context){
         this.onTaskCompleted=onTaskCompleted;
+        dialog = new ProgressDialog(context);
+        mContext=context;
     }
 
-
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
+        this.dialog.show();
+    }
 
     @Override
     protected ArrayList<OptionsEntity> doInBackground(String... params) {
@@ -123,6 +135,9 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
         super.onPostExecute(result);
         if (result != null) {
             onTaskCompleted.onTaskCompleted(result);
+            if (dialog.isShowing()){
+                dialog.dismiss();
+            }
         }
     }
 
@@ -133,20 +148,31 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
         list.clear();
         for (int i = 0; i < ArticlesDataArray.length(); i++) {
             oneArticleData = ArticlesDataArray.getJSONObject(i);
-            AUTHOR_STR= oneArticleData.getString(AUTHOR);
-            TITLE_STR= oneArticleData.getString(TITLE);
-            DESCRIPTION_STR= oneArticleData.getString(DESCRIPTION);
-            URL_STR= oneArticleData.getString(URL_);
-            URL_TO_IMAGE_STR= oneArticleData.getString(URL_TO_IMAGE);
-            PUBLISHED_AT_STR= oneArticleData.getString(PUBLISHED_AT);
-
-            JSONArray SourceJsonArray=oneArticleData.getJSONArray(SOURCE);
-            for (int x=0; x<SourceJsonArray.length(); x++){
-                JSONObject SourceObject= SourceJsonArray.getJSONObject(x);
-                Name_STR = SourceObject.getString(NAME);
-                optionsEntity=new OptionsEntity(AUTHOR_STR, TITLE_STR, DESCRIPTION_STR, URL_STR, URL_TO_IMAGE_STR, PUBLISHED_AT_STR, Name_STR);
-                list.add(optionsEntity);
+            AUTHOR_STR = oneArticleData.getString(AUTHOR);
+            TITLE_STR = oneArticleData.getString(TITLE);
+            DESCRIPTION_STR = oneArticleData.getString(DESCRIPTION);
+            URL_STR = oneArticleData.getString(URL_);
+            URL_TO_IMAGE_STR = oneArticleData.getString(URL_TO_IMAGE);
+            PUBLISHED_AT_STR = oneArticleData.getString(PUBLISHED_AT);
+            JSONObject SourceJsonObj = oneArticleData.getJSONObject(SOURCE);
+            Name_STR = SourceJsonObj.getString(NAME);
+            if (AUTHOR_STR==null){
+                AUTHOR_STR="";
             }
+            if (TITLE_STR==null){
+                TITLE_STR="";
+            }
+            if (DESCRIPTION_STR==null){
+                DESCRIPTION_STR="";
+            }
+            if (PUBLISHED_AT_STR==null){
+                PUBLISHED_AT_STR="";
+            }
+            if (Name_STR==null){
+                Name_STR="";
+            }
+            optionsEntity = new OptionsEntity(AUTHOR_STR, TITLE_STR, DESCRIPTION_STR, URL_STR, URL_TO_IMAGE_STR, PUBLISHED_AT_STR, Name_STR);
+            list.add(optionsEntity);
         }
         return list;
     }

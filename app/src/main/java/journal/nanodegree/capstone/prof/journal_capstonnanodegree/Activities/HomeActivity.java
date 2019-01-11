@@ -28,12 +28,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import butterknife.BindView;
@@ -44,8 +47,10 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.Webh
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Listeners.SnackBarLauncher;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        NewsApiFragment.NewsApiSelectedArticleListener{
 
     private final String LOG_TAG = HomeActivity.class.getSimpleName();
     private ProgressDialog progressDialog;
@@ -59,6 +64,17 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     Bundle webServiceWebHose=null;
     String apiKey,token;
     NewsApiFragment newsApiFragment;
+    WebhoseApiFragment webhoseApiFragment;
+    public static String POLITICS="Politics";
+    public static String ARTS="arts";
+    public static String SPORTS="sports";
+    public static String REPORTS="reports";
+    public static String FOOD="food";
+    public static String FAMILY="family";
+    public static String HERITAGE="heritage";
+    public static String OPINIONS="opinions";
+    public static String TECHNOLOGY="technology";
+    public static String BUSINESS="business";
 
     private boolean checkConnection() {
         return isInternetConnected=isConnected();
@@ -81,7 +97,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         apiKey= BuildConfig.ApiKey;
         token=BuildConfig.token;
         newsApiFragment=new NewsApiFragment();
-        final WebhoseApiFragment webhoseApiFragment=new WebhoseApiFragment();
+        webhoseApiFragment=new WebhoseApiFragment();
+        webServiceNewsApi=new Bundle();
+        webServiceWebHose=new Bundle();
         handler = new Handler();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -111,71 +129,100 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         displayUrgent();
                         return true;
                     case R.id.politics:
-                        webServiceWebHose.putString("politics","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543864001127&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9");
-                        webhoseApiFragment.setArguments(webServiceWebHose);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
-                                .commit();
+//                        webServiceWebHose.putString("politics","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543864001127&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9");
+//                        webhoseApiFragment.setArguments(webServiceWebHose);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
+//                                .commit();
+                        Intent intent2=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
+                        intent2.putExtra("ArticleType",POLITICS);
+                        startActivity(intent2);
                         return true;
                     case R.id.art_culture:
-                        webServiceWebHose.putString("arts","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543864086443&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D9%81%D9%86%D9%88%D9%86");
-                        webhoseApiFragment.setArguments(webServiceWebHose);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
-                                .commit();
+                        Intent intent3=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
+                        intent3.putExtra("ArticleType",ARTS);
+                        startActivity(intent3);
+//                        webServiceWebHose.putString("arts","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543864086443&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D9%81%D9%86%D9%88%D9%86");
+//                        webhoseApiFragment.setArguments(webServiceWebHose);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
+//                                .commit();
                         return true;
                     case R.id.sports:
-                        webServiceNewsApi.putString("sports","https://newsapi.org/v2/top-headlines?country=eg&category=sports&apiKey="+apiKey);
-                        newsApiFragment.setArguments(webServiceNewsApi);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, newsApiFragment, "newsApi")
-                                .commit();
+                        Intent intent4=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent4.putExtra("ArticleType",SPORTS);
+                        startActivity(intent4);
+//                        webServiceNewsApi.putString("sports","https://newsapi.org/v2/top-headlines?country=eg&category=sports&apiKey="+apiKey);
+//                        newsApiFragment.setArguments(webServiceNewsApi);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, newsApiFragment, "newsApi")
+//                                .commit();
                         return true;
                     case R.id.reports:
-//                        Intent intent=new Intent(getApplicationContext(),MatchesActivity.class);
-//                        startActivity(intent);
+                        Intent intent5=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent5.putExtra("ArticleType",REPORTS);
+                        startActivity(intent5);
+                        // get data from content provider or firebase
                         return true;
                     case R.id.food:
-                        webServiceWebHose.putString("food","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543863885301&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A");
-                        webhoseApiFragment.setArguments(webServiceWebHose);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
-                                .commit();
+                        Intent intent1=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent1.putExtra("ArticleType", FOOD);
+                        startActivity(intent1);
+//                        webServiceWebHose.putString("food","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543863885301&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A");
+//                        webhoseApiFragment.setArguments(webServiceWebHose);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
+//                                .commit();
                         return true;
                     case R.id.family:
-                        webServiceWebHose.putString("family","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1545130799659&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D8%A9");
-                        webhoseApiFragment.setArguments(webServiceWebHose);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
-                                .commit();
+                        Intent intent6=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent6.putExtra("ArticleType",FAMILY);
+                        startActivity(intent6);
+//                        webServiceWebHose.putString("family","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1545130799659&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D8%A9");
+//                        webhoseApiFragment.setArguments(webServiceWebHose);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
+//                                .commit();
                         return true;
                     case R.id.heritage:
-                        webServiceWebHose.putString("heritage","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543863771070&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%AA%D8%B1%D8%A7%D8%AB");
-                        webhoseApiFragment.setArguments(webServiceWebHose);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
-                                .commit();
+                        Intent intent7=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent7.putExtra("ArticleType",HERITAGE);
+                        startActivity(intent7);
+//                        webServiceWebHose.putString("heritage","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543863771070&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%AA%D8%B1%D8%A7%D8%AB");
+//                        webhoseApiFragment.setArguments(webServiceWebHose);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
+//                                .commit();
                         return true;
                     case R.id.opinions:
-                        webServiceWebHose.putString("opinions","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543852898977&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%A2%D8%B1%D8%A7%D8%A1");
-                        webhoseApiFragment.setArguments(webServiceWebHose);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
-                                .commit();
+                        Intent intent8=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
+                        intent8.putExtra("ArticleType",OPINIONS);
+                        startActivity(intent8);
+//                        webServiceWebHose.putString("opinions","http://webhose.io/filterWebContent?token="+token+"&format=json&ts=1543852898977&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%A2%D8%B1%D8%A7%D8%A1");
+//                        webhoseApiFragment.setArguments(webServiceWebHose);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, webhoseApiFragment, "webHose")
+//                                .commit();
                         return true;
                     case R.id.technology:
-                        webServiceNewsApi.putString("technology","https://newsapi.org/v2/top-headlines?country=eg&category=technology&apiKey="+apiKey);
-                        newsApiFragment.setArguments(webServiceNewsApi);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, newsApiFragment, "newsApi")
-                                .commit();
+                        Intent intent9=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent9.putExtra("ArticleType",TECHNOLOGY);
+                        startActivity(intent9);
+//                        webServiceNewsApi.putString("technology","https://newsapi.org/v2/top-headlines?country=eg&category=technology&apiKey="+apiKey);
+//                        newsApiFragment.setArguments(webServiceNewsApi);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, newsApiFragment, "newsApi")
+//                                .commit();
                         return true;
                     case R.id.business:
-                        webServiceNewsApi.putString("business","https://newsapi.org/v2/top-headlines?country=eg&category=business&apiKey="+apiKey);
-                        newsApiFragment.setArguments(webServiceNewsApi);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container_frame, newsApiFragment, "newsApi")
-                                .commit();
+                        Intent intent10=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+                        intent10.putExtra("ArticleType",BUSINESS);
+                        startActivity(intent10);
+//                        webServiceNewsApi.putString("business","https://newsapi.org/v2/top-headlines?country=eg&category=business&apiKey="+apiKey);
+//                        newsApiFragment.setArguments(webServiceNewsApi);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.container_frame, newsApiFragment, "newsApi")
+//                                .commit();
                         return true;
                     default:
                         return true;
@@ -185,10 +232,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Initializing Drawer Layout and ActionBarToggle
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar, R.string.openDrawer, R.string.closeDrawer){
+//            @Override
+//            public boolean onOptionsItemSelected(MenuItem item) {
+//                if (item != null && item.getItemId() == android.R.id.home) {
+//                    if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+//                        drawerLayout.closeDrawer(Gravity.RIGHT);
+//                    }
+//                    else {
+//                        drawerLayout.openDrawer(Gravity.RIGHT);
+//                    }
+//                }
+//                return false;
+//            }
+//
             @Override
             public void onDrawerClosed(View drawerView) {
                 // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
                 super.onDrawerClosed(drawerView);
+
             }
             @Override
             public void onDrawerOpened(View drawerView) {
@@ -218,5 +279,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return false;
+    }
+
+    @Override
+    public void onNewsApiArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {
+        // redirect to article details activity
+        Intent intent = new Intent(this, ArticleTypesListActivity.class);
+        Config.position=position;
+        if (TwoPane){
+            intent.putExtra("TwoPane",TwoPane);
+            intent.putExtra("optionsEntity", optionsEntity);
+            intent.putExtra("position", position);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+        }else {
+            intent.putExtra("TwoPane",TwoPane);
+            intent.putExtra("optionsEntity", optionsEntity);
+            intent.putExtra("position", position);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+        }
     }
 }

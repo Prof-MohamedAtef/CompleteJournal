@@ -2,13 +2,24 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers;
 
 import com.facebook.AccessToken;
 
+import java.io.Serializable;
+
 /**
  * Created by Prof-Mohamed Atef on 12/31/2018.
  */
 
-public class OptionsEntity {
+public class OptionsEntity implements Serializable{
     public static Object FBAccessToken;
+    String ID;
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
+
+    public String getID() {
+        return ID;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
+    }
 
     public String getAUTHOR() {
         return AUTHOR;

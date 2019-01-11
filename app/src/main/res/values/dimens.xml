@@ -10,4 +10,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <!--<integer name="fragment_details_background_image_fade_millis">1000</integer>-->
     <dimen name="card_elevation">1dp</dimen>
+    <dimen name="card_margin">5dp</dimen>
+    <dimen name="card_album_radius">0dp</dimen>
+    <string name="read_more">read more</string>
 </resources>

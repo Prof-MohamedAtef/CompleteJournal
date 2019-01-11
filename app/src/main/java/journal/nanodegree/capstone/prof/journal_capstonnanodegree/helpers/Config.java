@@ -17,6 +17,7 @@ public class Config {
     public static Context mContext;
     public static CoordinatorLayout mCoordinatorLayout;
     public static boolean TwoPane;
+    public static int position;
 
     static {
         URL url = null;

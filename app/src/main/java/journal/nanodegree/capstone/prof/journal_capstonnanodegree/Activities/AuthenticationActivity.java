@@ -61,7 +61,7 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     SignInButton Gbtn_sign_in;
-    GoogleSignInAccount GAccessToken;
+                       GoogleSignInAccount GAccessToken;
     CallbackManager callbackManager;
     String currentSignature;
     AccessTokenTracker accessTokenTracker;

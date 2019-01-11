@@ -11,7 +11,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
-        debug{
+        debug {
             buildConfigField 'String', "ApiKey", myApiKey
             resValue 'string', "api_key", myApiKey
             buildConfigField 'String', "token", token

@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NewsApiFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
@@ -46,18 +47,33 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
     public void onBindViewHolder(@NonNull NewsApiRecyclerAdapter.ViewHOlder holder, final int position) {
         final OptionsEntity feedItem = feedItemList.get(position);
         if (feedItem!=null){
-            if (feedItem.getRecipeName()!=null&&feedItem.getRecipeImage()!=null){
-                holder.recipeName.setText(feedItem.getRecipeName());
-                Picasso.with(mContext).load(feedItem.getRecipeImage())
-                        .error(R.drawable.pizza)
-                        .into(holder.recipeImage);
-                holder.recipeImage.setOnClickListener(new View.OnClickListener() {
+            if (feedItem.getAUTHOR()!=null&&feedItem.getTITLE()!=null){
+                holder.Author.setText(feedItem.getAUTHOR());
+                holder.Title.setText(feedItem.getTITLE());
+                if (feedItem.getDESCRIPTION()!=null&&feedItem.getNAME()!=null){
+                   holder.Description.setText(feedItem.getDESCRIPTION());
+                   holder.SourceName.setText(feedItem.getNAME());
+                   if (feedItem.getPUBLISHEDAT()!=null&&feedItem.getURL()!=null&&feedItem.getURLTOIMAGE()!=null){
+                       holder.Date.setText(feedItem.getPUBLISHEDAT());
+                       Picasso.with(mContext).load(feedItem.getURLTOIMAGE())
+                        .error(R.drawable.stanly)
+                        .into(holder.Image);
+                   }else {holder.Date.setText("");}
+                }else {
+                    holder.Description.setText("");
+                    holder.SourceName.setText("");
+                }
+            }else {
+                holder.Author.setText("");
+                holder.Title.setText("");
+            }
+                holder.Image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((UIIdentifierFragment.RecipeDataListener) mContext).onRecipeSelected(feedItemList.get(position),TwoPane);
+                        ((NewsApiFragment.NewsApiSelectedArticleListener) mContext).onNewsApiArticleSelected(feedItemList.get(position),TwoPane, position);
                     }
                 });
-            }
+
         }
     }
 
@@ -68,13 +84,21 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
     }
 
     class ViewHOlder extends RecyclerView.ViewHolder {
-        protected TextView recipeName;
-        protected ImageView recipeImage;
+        protected TextView Title;
+        protected TextView Author;
+        protected TextView Date;
+        protected TextView Description;
+        protected TextView SourceName;
+        protected ImageView Image;
 
         public ViewHOlder(View converview) {
             super(converview);
-            this.recipeName = (TextView) converview.findViewById(R.id.recipe_name);
-            this.recipeImage=(ImageView)converview.findViewById(R.id.recipe_image);
+            this.Title = (TextView) converview.findViewById(R.id.title);
+            this.Author= (TextView) converview.findViewById(R.id.author);
+            this.Date= (TextView) converview.findViewById(R.id.date_publish);
+            this.Description= (TextView) converview.findViewById(R.id.description);
+            this.SourceName= (TextView) converview.findViewById(R.id.source_name);
+            this.Image =(ImageView)converview.findViewById(R.id.image);
         }
     }
 }

@@ -59,6 +59,9 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-
+    <style name="AppTheme.NavigationView" >
+        <item name="colorPrimary">@color/theme_primary2</item>
+        <item name="android:textColorPrimary">@color/theme_accent2</item>
+    </style>
 
 </resources>

@@ -34,16 +34,8 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask(this);
+        NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask(this, getActivity());
         newsApiAsyncTask.execute(URL);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState!=null){
-            URL= savedInstanceState.getString(Urgent);
-        }
     }
 
     @Nullable
@@ -51,6 +43,8 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView=inflater.inflate(R.layout.fragment_ui_identifier,container,false);
         recyclerView=(RecyclerView)rootView.findViewById(R.id.recycler_view);
+        Bundle bundle=getArguments();
+        URL= bundle.getString(Urgent);
         if (rootView.findViewById(R.id.two_pane)!=null){
             TwoPane=true;
             Config.TwoPane=true;
@@ -67,5 +61,9 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
+    }
+
+    public interface NewsApiSelectedArticleListener {
+        void onNewsApiArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position);
     }
 }
