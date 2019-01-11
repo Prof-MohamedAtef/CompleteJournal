@@ -21,52 +21,20 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
 /**
- * Created by Prof-Mohamed Atef on 1/3/2019.
+ * Created by Prof-Mohamed Atef on 1/10/2019.
  */
 
-public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<OptionsEntity>> {
+public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<OptionsEntity>> {
 
-    private final String LOG_TAG = NewsApiAsyncTask.class.getSimpleName();
+    private final String LOG_TAG = WebHoseApiAsyncTask.class.getSimpleName();
+
     private ProgressDialog dialog;
     public JSONObject ArticlesJson;
     public JSONArray ArticlesDataArray;
     public JSONObject oneArticleData;
     private ArrayList<OptionsEntity> list = new ArrayList<OptionsEntity>();
+    private String MAIN_LIST;
 
-    String MAIN_LIST="articles";
-    String SOURCE="source";
-    String NAME="name";
-    String AUTHOR="author";
-    String TITLE="title";
-    String DESCRIPTION="description";
-    String URL_="url";
-    String URL_TO_IMAGE="urlToImage";
-    String PUBLISHED_AT="publishedAt";
-    private OptionsEntity optionsEntity;
-    private String Name_STR;
-    private String AUTHOR_STR;
-    private String TITLE_STR;
-    private String DESCRIPTION_STR;
-    private String URL_STR;
-    private String URL_TO_IMAGE_STR;
-    private String PUBLISHED_AT_STR;
-
-
-    public OnNewsTaskCompleted onTaskCompleted;
-    Context mContext;
-
-    public NewsApiAsyncTask(OnNewsTaskCompleted onTaskCompleted, Context context){
-        this.onTaskCompleted=onTaskCompleted;
-        dialog = new ProgressDialog(context);
-        mContext=context;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
-        this.dialog.show();
-    }
 
     @Override
     protected ArrayList<OptionsEntity> doInBackground(String... params) {
@@ -130,25 +98,14 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
         return null;
     }
 
-    @Override
-    protected void onPostExecute(ArrayList<OptionsEntity> result) {
-        super.onPostExecute(result);
-        if (result != null) {
-            onTaskCompleted.onTaskCompleted(result);
-            if (dialog.isShowing()){
-                dialog.dismiss();
-            }
-        }
-    }
-
-    private ArrayList<OptionsEntity> getArticlesJson(String Articles_JsonSTR) throws JSONException {
-        ArticlesJson = new JSONObject(Articles_JsonSTR );
+    private ArrayList<OptionsEntity> getArticlesJson(String articles_jsonSTR) throws JSONException {
+        ArticlesJson = new JSONObject(articles_jsonSTR );
         ArticlesDataArray= ArticlesJson.getJSONArray(MAIN_LIST);
 
         list.clear();
         for (int i = 0; i < ArticlesDataArray.length(); i++) {
             oneArticleData = ArticlesDataArray.getJSONObject(i);
-            AUTHOR_STR = oneArticleData.getString(AUTHOR);
+            /*AUTHOR_STR = oneArticleData.getString(AUTHOR);
             TITLE_STR = oneArticleData.getString(TITLE);
             DESCRIPTION_STR = oneArticleData.getString(DESCRIPTION);
             URL_STR = oneArticleData.getString(URL_);
@@ -172,12 +129,39 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
                 Name_STR="";
             }
             optionsEntity = new OptionsEntity(AUTHOR_STR, TITLE_STR, DESCRIPTION_STR, URL_STR, URL_TO_IMAGE_STR, PUBLISHED_AT_STR, Name_STR);
-            list.add(optionsEntity);
+            list.add(optionsEntity);*/
         }
         return list;
     }
 
-    public interface OnNewsTaskCompleted{
-        void onTaskCompleted(ArrayList<OptionsEntity> result);
+    @Override
+    protected void onPostExecute(ArrayList<OptionsEntity> result) {
+        super.onPostExecute(result);
+        if (result!=null){
+            onWebHoseTaskCompleted.onWebHoseTaskCompleted(result);
+            if (dialog.isShowing()){
+                dialog.dismiss();
+            }
+        }
+    }
+
+    public OnWebHoseTaskCompleted onWebHoseTaskCompleted;
+    Context mContext;
+
+    public WebHoseApiAsyncTask(OnWebHoseTaskCompleted onWebHoseTaskCompleted, Context mContext) {
+        this.onWebHoseTaskCompleted = onWebHoseTaskCompleted;
+        this.mContext = mContext;
+        dialog=new ProgressDialog(mContext);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
+        this.dialog.show();
+    }
+
+    public interface OnWebHoseTaskCompleted{
+        void onWebHoseTaskCompleted(ArrayList<OptionsEntity> result);
     }
 }
