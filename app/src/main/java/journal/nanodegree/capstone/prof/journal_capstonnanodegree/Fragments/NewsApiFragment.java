@@ -17,13 +17,14 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsAp
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.NewsApiAsyncTask;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
 /**
  * Created by Prof-Mohamed Atef on 1/3/2019.
  */
 
-public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTaskCompleted{
+public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnNewsTaskCompleted{
 
     private java.lang.String Urgent="urgent";
     String URL;
@@ -34,8 +35,14 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask(this, getActivity());
-        newsApiAsyncTask.execute(URL);
+        VerifyConnection verifyConnection=new VerifyConnection(getActivity());
+        verifyConnection.checkConnection();
+        if (verifyConnection.isConnected()){
+            NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask(this, getActivity());
+            newsApiAsyncTask.execute(URL);
+        }else {
+            // Show Snack
+        }
     }
 
     @Nullable
@@ -53,14 +60,15 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnTask
     }
 
     @Override
-    public void onTaskCompleted(ArrayList<OptionsEntity> result) {
-        NewsApiRecyclerAdapter mAdapter=new NewsApiRecyclerAdapter(getActivity(),result, TwoPane);
-        mAdapter.notifyDataSetChanged();
-        RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
-
+    public void onNewsApiTaskCompleted(ArrayList<OptionsEntity> result) {
+        if (result!=null){
+            NewsApiRecyclerAdapter mAdapter=new NewsApiRecyclerAdapter(getActivity(),result, TwoPane);
+            mAdapter.notifyDataSetChanged();
+            RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(mAdapter);
+        }
     }
 
     public interface NewsApiSelectedArticleListener {

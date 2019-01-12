@@ -9,10 +9,11 @@
         <!--<item name="colorAccent">@color/primary_dark</item>-->
     <!--</style>-->
 
+
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/theme_primary2</item>
-        <item name="colorPrimaryDark">@color/theme_primary2</item>
-        <item name="colorAccent">@color/theme_primary2</item>
+        <item name="colorPrimary">@color/primaryDarkColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/primaryDarkColor</item>
     </style>
 
     <style name="FullscreenTheme" parent="AppTheme">
@@ -58,10 +59,8 @@
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
     <style name="AppTheme.NavigationView" >
         <item name="colorPrimary">@color/theme_primary2</item>
         <item name="android:textColorPrimary">@color/theme_accent2</item>
     </style>
-
 </resources>

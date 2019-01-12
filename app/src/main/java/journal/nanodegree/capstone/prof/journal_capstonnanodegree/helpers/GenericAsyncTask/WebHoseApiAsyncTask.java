@@ -33,7 +33,29 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
     public JSONArray ArticlesDataArray;
     public JSONObject oneArticleData;
     private ArrayList<OptionsEntity> list = new ArrayList<OptionsEntity>();
-    private String MAIN_LIST;
+    private String MAIN_LIST="posts";
+    private String THREAD_="thread";
+    private String SITE="site";
+    private String SECTION_TITLE="section_title";
+    private String TITLE="title";
+    private String TITLE_FULL="title_full";
+    private String PUBLISHED="published";
+    private String MAIN_IMAGE="main_image";
+    private String URL_="url";
+    private String AUTHOR="author";
+    private String Language="language";
+    private String AUTHOR_STR;
+    private String URL_STR;
+    private String LANGUAGE_STR;
+    private String SITE_STR;
+    private String SECTIONTITLE_STR;
+    private String TITLE_STR;
+    private String TITLEFULL_STR;
+    private String PUBLISHED_STR;
+    private String MAINIMAGE_STR;
+    private OptionsEntity optionsEntity;
+    private String TEXT="text";
+    private String TEXT_STR;
 
 
     @Override
@@ -101,35 +123,47 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
     private ArrayList<OptionsEntity> getArticlesJson(String articles_jsonSTR) throws JSONException {
         ArticlesJson = new JSONObject(articles_jsonSTR );
         ArticlesDataArray= ArticlesJson.getJSONArray(MAIN_LIST);
-
         list.clear();
         for (int i = 0; i < ArticlesDataArray.length(); i++) {
             oneArticleData = ArticlesDataArray.getJSONObject(i);
-            /*AUTHOR_STR = oneArticleData.getString(AUTHOR);
-            TITLE_STR = oneArticleData.getString(TITLE);
-            DESCRIPTION_STR = oneArticleData.getString(DESCRIPTION);
             URL_STR = oneArticleData.getString(URL_);
-            URL_TO_IMAGE_STR = oneArticleData.getString(URL_TO_IMAGE);
-            PUBLISHED_AT_STR = oneArticleData.getString(PUBLISHED_AT);
-            JSONObject SourceJsonObj = oneArticleData.getJSONObject(SOURCE);
-            Name_STR = SourceJsonObj.getString(NAME);
+            AUTHOR_STR = oneArticleData.getString(AUTHOR);
+            LANGUAGE_STR = oneArticleData.getString(Language);
+            TEXT_STR = oneArticleData.getString(TEXT);
+            JSONObject THREADJsonObj = oneArticleData.getJSONObject(THREAD_);
+            SITE_STR = THREADJsonObj.getString(SITE);
+            SECTIONTITLE_STR = THREADJsonObj.getString(SECTION_TITLE);
+            TITLE_STR = THREADJsonObj.getString(TITLE);
+            TITLEFULL_STR = THREADJsonObj.getString(TITLE_FULL);
+            PUBLISHED_STR = THREADJsonObj.getString(PUBLISHED);
+            MAINIMAGE_STR = THREADJsonObj.getString(MAIN_IMAGE);
+
             if (AUTHOR_STR==null){
                 AUTHOR_STR="";
+            }
+            if (LANGUAGE_STR==null){
+                LANGUAGE_STR="";
+            }
+            if (SITE_STR==null){
+                SITE_STR="";
+            }
+            if (SECTIONTITLE_STR==null){
+                SECTIONTITLE_STR="";
             }
             if (TITLE_STR==null){
                 TITLE_STR="";
             }
-            if (DESCRIPTION_STR==null){
-                DESCRIPTION_STR="";
+            if (TITLEFULL_STR==null){
+                TITLEFULL_STR="";
             }
-            if (PUBLISHED_AT_STR==null){
-                PUBLISHED_AT_STR="";
+            if (PUBLISHED_STR==null){
+                PUBLISHED_STR="";
             }
-            if (Name_STR==null){
-                Name_STR="";
+            if (MAINIMAGE_STR==null){
+                MAINIMAGE_STR="";
             }
-            optionsEntity = new OptionsEntity(AUTHOR_STR, TITLE_STR, DESCRIPTION_STR, URL_STR, URL_TO_IMAGE_STR, PUBLISHED_AT_STR, Name_STR);
-            list.add(optionsEntity);*/
+            optionsEntity = new OptionsEntity(AUTHOR_STR, URL_STR, LANGUAGE_STR, SITE_STR, SECTIONTITLE_STR, TITLE_STR, TITLEFULL_STR, PUBLISHED_STR, MAINIMAGE_STR,TEXT_STR);
+            list.add(optionsEntity);
         }
         return list;
     }

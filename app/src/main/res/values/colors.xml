@@ -16,10 +16,16 @@
     <color name="black_overlay">#66000000</color>
     <color name="divider">#BDBDBD</color>
     <color name="blue">#10a2e3</color>
+    <color name="semi_blue_green">#5E8682</color>
 
     <color name="theme_primary2">#880e4f</color>
     <color name="theme_primary_dark2">#560027</color>
     <color name="theme_accent2">#bc477b</color>
+
+    <color name="primaryColor">#00695c</color>
+    <color name="primaryLightColor">#439889</color>
+    <color name="primaryDarkColor">#003d33</color>
+    <color name="primaryTextColor">#ffffff</color>
 
 
 </resources>

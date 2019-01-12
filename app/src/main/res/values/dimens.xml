@@ -12,5 +12,10 @@
     <dimen name="card_elevation">1dp</dimen>
     <dimen name="card_margin">5dp</dimen>
     <dimen name="card_album_radius">0dp</dimen>
-    <string name="read_more">read more</string>
+    <dimen name="list_toolbar_side_margin">4dp</dimen>
+    <dimen name="list_side_margin">3dp</dimen>
+    <dimen name="AppBarLayout_height">200dp</dimen>
+    <dimen name="Overlap_top">240dp</dimen>
+    <dimen name="text_padding">3dp</dimen>
+
 </resources>

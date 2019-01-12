@@ -1,52 +1,51 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import java.util.ArrayList;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsApiRecyclerAdapter;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.UrgentNewsAdapter;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.WebHoseRecyclerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.NewsApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.WebHoseApiAsyncTask;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.ARTS;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.BUSINESS;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.FAMILY;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.FOOD;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.HERITAGE;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.OPINIONS;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.POLITICS;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.REPORTS;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.SPORTS;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.TECHNOLOGY;
-import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig.token;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.NEWSAPI_KEY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.WebHoseAPIKEY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.UrgentURL;
 
 /**
  * Created by Prof-Mohamed Atef on 1/10/2019.
  */
 
-public class ArticlesMasterListFragment extends android.app.Fragment implements NewsApiAsyncTask.OnNewsTaskCompleted, WebHoseApiAsyncTask.OnWebHoseTaskCompleted {
-
+public class ArticlesMasterListFragment extends android.app.Fragment implements NewsApiAsyncTask.OnNewsTaskCompleted,
+        WebHoseApiAsyncTask.OnWebHoseTaskCompleted,
+        NewsApiAsyncTask.OnNewsUrgentTaskCompleted{
+    String apiKey;
     private String URL;
     private RecyclerView recyclerView;
     private RecyclerView recyclerView_Horizontal;
     private boolean TwoPane;
     private ArrayList<OptionsEntity> UrgentArticlesList;
     private ArrayList<OptionsEntity> TypesArticlesList;
-    private String token;
-    private String apiKey;
-    private static final String WEBHOSE = "http://webhose.io/filterWebContent?token=";
-    private String NEWSAPI="https://newsapi.org/v2/top-headlines?country=eg&category=";
-    private String WEBHOSEDETAILS="sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.";
     private String WebHoseVerifier, NewsApiVerifier;
     private String KEY_ArticleTypeArray="ArticleTypeArr";
     private String KEY_UrgentArray="UrgentArr";
+    private String MustImplementListener="must Implement OnSelectedArticleListener";
+    private GridLayoutManager layoutManager;
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -62,8 +61,12 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        token= BuildConfig.token;
+        Bundle bundle=getArguments();
         apiKey= BuildConfig.ApiKey;
+        URL= bundle.getString(URL_KEY);
+        NewsApiVerifier=bundle.getString(NEWSAPI_KEY);
+        WebHoseVerifier=bundle.getString(WebHoseAPIKEY);
+
         if (savedInstanceState!=null){
             if (UrgentArticlesList.isEmpty()){
                 UrgentArticlesList= (ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_UrgentArray);
@@ -72,61 +75,50 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
             if (TypesArticlesList.isEmpty()){
                 TypesArticlesList=(ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_ArticleTypeArray);
                 PopulateTypesList(TypesArticlesList);
+                PopulateTypesList(TypesArticlesList);
             }
         }else {
-            Intent intent= getActivity().getIntent();
-            if (intent!=null&&intent.hasExtra(POLITICS)){
-                URL=WEBHOSE+token+"&format=json&ts=1543864001127&"+WEBHOSEDETAILS+"title%3A%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9";
-                WebHoseVerifier=URL;
-            }else if (intent!=null&&intent.hasExtra(ARTS)){
-                URL=WEBHOSE+token+"&format=json&ts=1543864086443&"+WEBHOSEDETAILS+"title%3A%D9%81%D9%86%D9%88%D9%86";
-                WebHoseVerifier=URL;
-            }else if (intent!=null&&intent.hasExtra(SPORTS)){
-                URL=NEWSAPI+"sports&apiKey="+apiKey;
-                NewsApiVerifier=URL;
-            }else if (intent!=null&&intent.hasExtra(REPORTS)){
-                // get data from Content Provider of Firebase
-            }else if (intent!=null&&intent.hasExtra(FOOD)){
-                URL=WEBHOSE+token+"&format=json&ts=1543863885301&"+WEBHOSEDETAILS+"title%3A";
-                WebHoseVerifier=URL;
-            }else if (intent!=null&&intent.hasExtra(FAMILY)){
-                URL=WEBHOSE+token+"&format=json&ts=1545130799659&"+WEBHOSEDETAILS+"title%3A%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D8%A9";
-                WebHoseVerifier=URL;
-            }else if (intent!=null&&intent.hasExtra(HERITAGE)){
-                URL=WEBHOSE+token+"&format=json&ts=1543863771070&"+WEBHOSEDETAILS+"title%3A%D8%AA%D8%B1%D8%A7%D8%AB";
-                WebHoseVerifier=URL;
-            }else if (intent!=null&&intent.hasExtra(OPINIONS)){
-                URL=WEBHOSE+token+"&format=json&ts=1543852898977&"+WEBHOSEDETAILS+"title%3A%D8%A2%D8%B1%D8%A7%D8%A1";
-                WebHoseVerifier=URL;
-            } else if (intent!=null&&intent.hasExtra(TECHNOLOGY)){
-                URL=NEWSAPI+"technology&apiKey="+apiKey;
-                NewsApiVerifier=URL;
-            } else if (intent!=null&&intent.hasExtra(BUSINESS)){
-                URL=NEWSAPI+"business&apiKey="+apiKey;
-                NewsApiVerifier=URL;
+            VerifyConnection verifyConnection=new VerifyConnection(getActivity());
+            verifyConnection.checkConnection();
+            if (verifyConnection.isConnected()){
+                ConnectToAPIs();
+            }else {
+                // Show Snack
             }
-//            GetUrgentAsyncTask getUrgentAsyncTask=new GetUrgentAsyncTask(this);
-//            getUrgentAsyncTask.execute(getResources().getString(R.string.UrgentAPI));
-            if (WebHoseVerifier.equals(URL)){
-                WebHoseVerifier=null;
-                WebHoseApiAsyncTask webHoseApiAsyncTask=new WebHoseApiAsyncTask(this, getActivity());
-                webHoseApiAsyncTask.execute(URL);
-            }else if (NewsApiVerifier.equals(URL)){
-                NewsApiVerifier=null;
-                NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask(this, getActivity());
-                newsApiAsyncTask.execute(URL);
-            }
-//            GetArticlesTypesAsyncTask getArticlesTypesAsyncTask=new GetArticlesTypesAsyncTask(this);
-//            getArticlesTypesAsyncTask.execute(URL);
         }
     }
 
-    private void PopulateTypesList(ArrayList<OptionsEntity> typesArticlesList) {
+    private void ConnectToAPIs() {
+        if (WebHoseVerifier.equals(URL)){
+            WebHoseVerifier=null;
+            WebHoseApiAsyncTask webHoseApiAsyncTask=new WebHoseApiAsyncTask(this, getActivity());
+            webHoseApiAsyncTask.execute(URL);
+        }else if (NewsApiVerifier.equals(URL)){
+            NewsApiVerifier=null;
+            NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsTaskCompleted) this, getActivity());
+            newsApiAsyncTask.execute(URL);
+        }
+        NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsUrgentTaskCompleted) this, getActivity());
+        newsApiAsyncTask.execute(UrgentURL+apiKey);
+    }
 
+    private void PopulateTypesList(ArrayList<OptionsEntity> typesArticlesList) {
+        NewsApiRecyclerAdapter mAdapter=new NewsApiRecyclerAdapter(getActivity(),typesArticlesList, TwoPane);
+        mAdapter.notifyDataSetChanged();
+        RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
     }
 
     private void PopulateUrgentArticles(ArrayList<OptionsEntity> urgentArticlesList) {
-
+        UrgentNewsAdapter mAdapter=new UrgentNewsAdapter(getActivity(),urgentArticlesList, TwoPane);
+        mAdapter.notifyDataSetChanged();
+        layoutManager=(GridLayoutManager)recyclerView_Horizontal.getLayoutManager();
+        RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView_Horizontal.setLayoutManager(mLayoutManager);
+        recyclerView_Horizontal.setItemAnimator(new DefaultItemAnimator());
+        recyclerView_Horizontal.setAdapter(mAdapter);
     }
 
     @Nullable
@@ -142,14 +134,57 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
     }
 
     @Override
-    public void onTaskCompleted(ArrayList<OptionsEntity> result) {
-        if (result!=null){
+    public void onNewsApiTaskCompleted(ArrayList<OptionsEntity> result) {
+        if (result!=null&&result.size()>0){
+            PopulateTypesList(result);
+            TypesArticlesList=result;
         }
     }
 
     @Override
     public void onWebHoseTaskCompleted(ArrayList<OptionsEntity> result) {
-        if (result!=null){
+        if (result!=null&&result.size()>0){
+            TypesArticlesList=result;
+            WebHoseRecyclerAdapter mAdapter=new WebHoseRecyclerAdapter(getActivity(),result, TwoPane);
+            mAdapter.notifyDataSetChanged();
+            RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(mAdapter);
+        }
+    }
+
+    @Override
+    public void onNewsUrgentApiTaskCompleted(ArrayList<OptionsEntity> result) {
+        if (result!=null&&result.size()>0){
+            PopulateUrgentArticles(result);
+            UrgentArticlesList=result;
+        }
+    }
+
+    public interface OnSelectedArticleListener {
+        void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position);
+    }
+
+    OnSelectedArticleListener mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try{
+            mCallback= (OnSelectedArticleListener) context;
+        }catch (ClassCastException e){
+            throw new ClassCastException(context.toString()+MustImplementListener);
+        }
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try{
+            mCallback= (OnSelectedArticleListener) activity;
+        }catch (ClassCastException e){
+            throw new ClassCastException(activity.toString()+MustImplementListener);
         }
     }
 }

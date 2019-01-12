@@ -10,8 +10,48 @@ import java.io.Serializable;
 
 public class OptionsEntity implements Serializable{
     public static Object FBAccessToken;
+    public static String LANGUAGE;
+    public static String SECTIONTITLE;
+    public static String TITLEFULL;
     String ID;
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
+
+    public OptionsEntity(String author_str, String url_str, String language_str, String site_str, String sectiontitle_str, String title_str, String titlefull_str, String published_str, String mainimage_str, String text_str) {
+        this.AUTHOR=author_str;
+        this.URL=url_str;
+        this.LANGUAGE=language_str;
+        this.NAME=site_str;
+        this.SECTIONTITLE=sectiontitle_str;
+        this.TITLE=title_str;
+        this.TITLEFULL=titlefull_str;
+        this.PUBLISHEDAT=published_str;
+        this.URLTOIMAGE=mainimage_str;
+        this.DESCRIPTION=text_str;
+    }
+
+    public static String getLANGUAGE() {
+        return LANGUAGE;
+    }
+
+    public static void setLANGUAGE(String LANGUAGE) {
+        OptionsEntity.LANGUAGE = LANGUAGE;
+    }
+
+    public static String getSECTIONTITLE() {
+        return SECTIONTITLE;
+    }
+
+    public static void setSECTIONTITLE(String SECTIONTITLE) {
+        OptionsEntity.SECTIONTITLE = SECTIONTITLE;
+    }
+
+    public static String getTITLEFULL() {
+        return TITLEFULL;
+    }
+
+    public static void setTITLEFULL(String TITLEFULL) {
+        OptionsEntity.TITLEFULL = TITLEFULL;
+    }
 
     public String getID() {
         return ID;

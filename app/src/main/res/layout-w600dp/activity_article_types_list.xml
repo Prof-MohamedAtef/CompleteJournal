@@ -7,18 +7,23 @@
     android:orientation="horizontal"
     android:background="@android:color/darker_gray"
     tools:context=".Activities.ArticleTypesListActivity">
-    <fragment
-        android:name="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment"
-        android:id="@+id/master_list_fragment"
+    <!--<fragment-->
+        <!--android:name="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment"-->
+        <!--android:id="@+id/master_list_fragment"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_weight="2"-->
+        <!--android:layout_height="match_parent"/>-->
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_weight="2"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:id="@+id/master_list_fragment"/>
     <View
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"/>
     <LinearLayout
-        android:id="@+id/StepDetails"
+        android:id="@+id/ArticleDetails"
         android:layout_width="0dp"
         android:layout_weight="3"
         android:layout_height="match_parent"

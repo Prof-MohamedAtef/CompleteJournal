@@ -9,13 +9,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
@@ -52,11 +66,18 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     private String PUBLISHED_AT_STR;
 
 
-    public OnNewsTaskCompleted onTaskCompleted;
+    public OnNewsTaskCompleted onNewsTaskCompleted;
+    OnNewsUrgentTaskCompleted onNewsUrgentTaskCompleted;
     Context mContext;
 
     public NewsApiAsyncTask(OnNewsTaskCompleted onTaskCompleted, Context context){
-        this.onTaskCompleted=onTaskCompleted;
+        this.onNewsTaskCompleted=onTaskCompleted;
+        dialog = new ProgressDialog(context);
+        mContext=context;
+    }
+
+    public NewsApiAsyncTask(OnNewsUrgentTaskCompleted onNewsUrgentTaskCompleted, Context context){
+        this.onNewsUrgentTaskCompleted=onNewsUrgentTaskCompleted;
         dialog = new ProgressDialog(context);
         mContext=context;
     }
@@ -70,30 +91,147 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
 
     @Override
     protected ArrayList<OptionsEntity> doInBackground(String... params) {
-        String Articles_JsonSTR = null;
+        CertificateFactory cf = null;
 
-        HttpURLConnection urlConnection = null;
+        try {
+            cf = CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        }
+        InputStream caInput=null;
+        InputStream is = null;
+        InputStream inputStream = null;
+//            is=getClass().getResourceAsStream("/raw/certificate.crt");
+
+        InputStream path=null;
+        try {
+            path=mContext.getResources().openRawResource(R.raw.newsapi_certificate);
+        }catch (Exception e){
+            path=null;
+        }
+
+
+        if (path==null){
+            path=null;
+        }else {
+            caInput = new BufferedInputStream(path);
+        }
+        Certificate ca = null;
+        try {
+            try {
+                ca = cf.generateCertificate(caInput);
+            } catch (CertificateException e) {
+                e.printStackTrace();
+            }
+            Log.v(LOG_TAG, "my Certificate Authority= " + ((X509Certificate) ca).getSubjectDN());
+        } finally {
+            try {
+                caInput.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+// Create a KeyStore containing our trusted CAs
+        String keyStoreType = KeyStore.getDefaultType();
+        KeyStore keyStore = null;
+        try {
+            keyStore = KeyStore.getInstance(keyStoreType);
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+        try {
+            keyStore.load(null, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        }
+        try {
+            keyStore.setCertificateEntry("ca", ca);
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+
+
+// Create a TrustManager that trusts the CAs in our KeyStore
+        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = null;
+        try {
+            tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try {
+            tmf.init(keyStore);
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        }
+
+// Create an SSLContext that uses our TrustManager
+        SSLContext context = null;
+        try {
+            context = SSLContext.getInstance("TLS");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try {
+            context.init(null, tmf.getTrustManagers(), null);
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+// Tell the URLConnection to use a SocketFactory from our SSLContext
+        URL url = null;
         BufferedReader reader = null;
+        try {
+            url = new URL(params[0]);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
 
+        }
         if (params.length == 0) {
             return null;
         }
-
+        HttpsURLConnection urlConnection = null;
         try {
-
-            URL url = new URL(params[0]);
-            urlConnection = (HttpURLConnection) url.openConnection();
-
+            urlConnection = (HttpsURLConnection)url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        urlConnection.setSSLSocketFactory(context.getSocketFactory());
+        try {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
+            inputStream = urlConnection.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//            copyInputStreamToOutputStream(in, System.out);
 
-            InputStream inputStream = urlConnection.getInputStream();
+
+            /*
+            End of SSL
+             */
+
+
+        String UsersDesires_JsonSTR = null;
+
+//            HttpURLConnection urlConnection = null;
+
+        try {
+//                URL url = new URL(params[0]);
+//                urlConnection = (HttpURLConnection) url.openConnection();
+
+
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
-                Articles_JsonSTR  = null;
+                UsersDesires_JsonSTR = null;
+            }else {
+                reader = new BufferedReader(new InputStreamReader(inputStream));
             }
-
-            reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
                 buffer.append(line + "\n");
@@ -101,13 +239,10 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
             if (buffer.length() == 0) {
                 return null;
             }
-
-            Articles_JsonSTR = buffer.toString();
-
-            Log.v(LOG_TAG, "Articles JSON String: " + Articles_JsonSTR );
+            UsersDesires_JsonSTR = buffer.toString();
+            Log.v(LOG_TAG, "Articles String: " + UsersDesires_JsonSTR);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error here Exactly ", e);
-
             return null;
         } finally {
             if (urlConnection != null) {
@@ -122,9 +257,9 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
             }
         }
         try {
-            return getArticlesJson(Articles_JsonSTR );
+            return getArticlesJson(UsersDesires_JsonSTR);
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "didn't got Articles Data from getJsonData method", e);
+            Log.e(LOG_TAG, "didn't got Users Desires from getJsonData method", e);
             e.printStackTrace();
         }
         return null;
@@ -134,7 +269,11 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     protected void onPostExecute(ArrayList<OptionsEntity> result) {
         super.onPostExecute(result);
         if (result != null) {
-            onTaskCompleted.onTaskCompleted(result);
+            if (onNewsTaskCompleted!=null){
+                onNewsTaskCompleted.onNewsApiTaskCompleted(result);
+            }else if (onNewsUrgentTaskCompleted!=null){
+                onNewsUrgentTaskCompleted.onNewsUrgentApiTaskCompleted(result);
+            }
             if (dialog.isShowing()){
                 dialog.dismiss();
             }
@@ -144,7 +283,6 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     private ArrayList<OptionsEntity> getArticlesJson(String Articles_JsonSTR) throws JSONException {
         ArticlesJson = new JSONObject(Articles_JsonSTR );
         ArticlesDataArray= ArticlesJson.getJSONArray(MAIN_LIST);
-
         list.clear();
         for (int i = 0; i < ArticlesDataArray.length(); i++) {
             oneArticleData = ArticlesDataArray.getJSONObject(i);
@@ -178,6 +316,10 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     }
 
     public interface OnNewsTaskCompleted{
-        void onTaskCompleted(ArrayList<OptionsEntity> result);
+        void onNewsApiTaskCompleted(ArrayList<OptionsEntity> result);
+    }
+
+    public interface OnNewsUrgentTaskCompleted{
+        void onNewsUrgentApiTaskCompleted(ArrayList<OptionsEntity> result);
     }
 }

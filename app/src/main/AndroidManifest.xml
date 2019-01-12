@@ -20,7 +20,6 @@
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -36,10 +35,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
@@ -52,14 +49,19 @@
             android:name="com.facebook.FacebookContentProvider"
             android:authorities="com.facebook.app.FacebookContentProvider162164734646634"
             android:exported="true" />
-
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <activity android:name=".Activities.AddArticleActivity" />
-        <activity android:name=".Activities.ArticleDetailsActivity" />
-        <activity android:name=".Activities.ArticleTypesListActivity"></activity>
+        <activity android:name=".Activities.AddArticleActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:parentActivityName=".Activities.HomeActivity"/>
+        <activity android:name=".Activities.ArticleDetailsActivity"
+            android:parentActivityName=".Activities.ArticleTypesListActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity android:name=".Activities.ArticleTypesListActivity"
+            android:parentActivityName=".Activities.HomeActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
     </application>
 
 </manifest>
