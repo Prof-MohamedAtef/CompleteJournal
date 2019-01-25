@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -68,7 +69,7 @@ public class WebHoseRecyclerAdapter extends  RecyclerView.Adapter<WebHoseRecycle
                 holder.Author.setText("");
                 holder.Title.setText("");
             }
-            holder.Image.setOnClickListener(new View.OnClickListener() {
+            holder.linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ((ArticlesMasterListFragment.OnSelectedArticleListener) mContext).onArticleSelected(feedItemList.get(position),TwoPane, position);
@@ -91,6 +92,7 @@ public class WebHoseRecyclerAdapter extends  RecyclerView.Adapter<WebHoseRecycle
         protected TextView Description;
         protected TextView SourceName;
         protected ImageView Image;
+        protected LinearLayout linearLayout;
 
         public ViewHOlder(View converview) {
             super(converview);
@@ -100,6 +102,7 @@ public class WebHoseRecyclerAdapter extends  RecyclerView.Adapter<WebHoseRecycle
             this.Description= (TextView) converview.findViewById(R.id.description);
             this.SourceName= (TextView) converview.findViewById(R.id.source_name);
             this.Image =(ImageView)converview.findViewById(R.id.image);
+            this.linearLayout=(LinearLayout)converview.findViewById(R.id.linearLayout);
         }
     }
 }

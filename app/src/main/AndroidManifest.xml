@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
 
     <application
         android:allowBackup="true"
@@ -12,6 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".Activities.AuthenticationActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
@@ -52,7 +56,6 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
         <activity android:name=".Activities.AddArticleActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:parentActivityName=".Activities.HomeActivity"/>
@@ -63,5 +66,4 @@
             android:parentActivityName=".Activities.HomeActivity"
             android:windowSoftInputMode="stateAlwaysHidden"/>
     </application>
-
 </manifest>

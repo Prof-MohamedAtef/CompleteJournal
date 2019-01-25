@@ -9,7 +9,6 @@
         <!--<item name="colorAccent">@color/primary_dark</item>-->
     <!--</style>-->
 
-
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primaryDarkColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>

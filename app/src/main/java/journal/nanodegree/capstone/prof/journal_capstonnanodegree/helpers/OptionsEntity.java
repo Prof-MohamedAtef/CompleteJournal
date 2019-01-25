@@ -15,6 +15,15 @@ public class OptionsEntity implements Serializable{
     public static String TITLEFULL;
     String ID;
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
+    String AudioFile;
+
+    public String getAudioFile() {
+        return AudioFile;
+    }
+
+    public void setAudioFile(String audioFile) {
+        AudioFile = audioFile;
+    }
 
     public OptionsEntity(String author_str, String url_str, String language_str, String site_str, String sectiontitle_str, String title_str, String titlefull_str, String published_str, String mainimage_str, String text_str) {
         this.AUTHOR=author_str;

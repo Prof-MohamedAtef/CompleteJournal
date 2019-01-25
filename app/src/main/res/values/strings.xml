@@ -7,6 +7,8 @@
     <string name="openDrawer">Navigation View Closed</string>
     <string name="closeDrawer">Navigation View</string>
 
+    <string name="unavailable">Un Available</string>
+
     <!--drawer-->
     <string name="publish">Publish</string>
     <string name="urgent_news">Urgent</string>

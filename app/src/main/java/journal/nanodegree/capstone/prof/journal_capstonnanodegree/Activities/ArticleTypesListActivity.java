@@ -42,7 +42,7 @@ import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildCo
 public class ArticleTypesListActivity extends AppCompatActivity implements ArticlesMasterListFragment.OnSelectedArticleListener,
         SwipeRefreshLayout.OnRefreshListener{
 
-    public static String WebHoseVerifier, NewsApiVerifier;
+    public static String WebHoseVerifier="null", NewsApiVerifier="null";
     private String URL;
     private boolean mTwoPaneUi;
     private static final String WEBHOSE = "http://webhose.io/filterWebContent?token=";
@@ -55,31 +55,37 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     public static String WebHoseAPIKEY="WenHoseAPIKEY";
     private String Arts;
     private String ArticleType_;
-    @BindView(R.id.toolbar)
+//    @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.swipe_refresh_layout)
+//    @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.coordinator_layout)
-    CoordinatorLayout coordinatorLayout;
+//    @BindView(R.id.coordinator_layout)
+//    CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_types_list);
-        ButterKnife.bind(this);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        ButterKnife.bind(this);
 
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
+        if (findViewById(R.id.ArticleDetails)!=null) {
+            mTwoPaneUi = true;
+        }else {
+            mTwoPaneUi = false;
+            mToolbar=(Toolbar)findViewById(R.id.toolbar);
+            setSupportActionBar(mToolbar);
+            assert getSupportActionBar()!=null;
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+            mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
+            mSwipeRefreshLayout.setOnRefreshListener(this);
+        }
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
 
@@ -117,8 +123,6 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             URL=NEWSAPI+"business&apiKey="+apiKey;
             NewsApiVerifier=URL;
         }
-
-
 
         Bundle bundle2=new Bundle();
         bundle2.putString(URL_KEY,URL);
