@@ -8,6 +8,17 @@
     <string name="closeDrawer">Navigation View</string>
 
     <string name="unavailable">Un Available</string>
+    <string name="okay">It is Okay</string>
+    <string name="date">date_time</string>
+    <string name="author">Author_name</string>
+    <string name="TitleHint">Report Title</string>
+    <string name="DescriptionHint">Description</string>
+    <string name="Photo">Photo</string>
+    <string name="canceled">Canceled</string>
+    <string name="chooser_Intent_select_or_take_picture">Post Image via</string>
+    <string name="title_write_external_storage_permission">Write External</string>
+    <string name="text_write_external_permission">This app will Write on The External Storage of this device</string>
+    <string name="ok">Okay</string>
 
     <!--drawer-->
     <string name="publish">Publish</string>

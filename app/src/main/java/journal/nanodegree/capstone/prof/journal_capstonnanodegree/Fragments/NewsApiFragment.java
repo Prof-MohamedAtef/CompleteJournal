@@ -24,13 +24,13 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
  * Created by Prof-Mohamed Atef on 1/3/2019.
  */
 
-public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnNewsTaskCompleted{
+public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnNewsTaskCompleted,
+ArticlesMasterListFragment.OnSelectedArticleListener{
 
     private java.lang.String Urgent="urgent";
     String URL;
     private boolean TwoPane;
     RecyclerView recyclerView;
-
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -69,6 +69,11 @@ public class NewsApiFragment extends Fragment implements NewsApiAsyncTask.OnNews
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(mAdapter);
         }
+    }
+
+    @Override
+    public void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {
+
     }
 
     public interface NewsApiSelectedArticleListener {

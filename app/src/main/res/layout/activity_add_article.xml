@@ -1,9 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:id="@+id/scrollView"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:fillViewport="true"
+xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="12dp"
+    android:orientation="vertical"
+    android:background="#fff"
     tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.AddArticleActivity">
-
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.25">
+        <LinearLayout
+            android:gravity="center_horizontal|center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ProfileImage_header_Post"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/news" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/txtProfileOwner_Posts"
+                android:textColor="@color/primaryLightColor"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/DateTime"
+                android:textColor="@color/primaryLightColor"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.25">
+        <EditText
+            android:id="@+id/txt_ReportTitle"
+            android:hint="@string/TitleHint"
+            android:textColor="@color/primaryLightColor"
+            android:textColorHint="@color/primaryLightColor"
+            android:lines="3"
+            android:minLines="1"
+            android:gravity="center_vertical|center_horizontal"
+            android:maxLines="3"
+            android:inputType="textMultiLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:scrollbars="vertical" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <EditText
+            android:id="@+id/txt_ReportDescription"
+            android:hint="@string/DescriptionHint"
+            android:textColor="@color/primaryLightColor"
+            android:textColorHint="@color/primaryLightColor"
+            android:lines="14"
+            android:minLines="10"
+            android:gravity="center_vertical|center_horizontal"
+            android:maxLines="14"
+            android:inputType="textMultiLine"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:scrollbars="vertical" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <ImageView
+            android:scaleType="centerCrop"
+            android:id="@+id/ImageReport"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="#dcdcdc" />
+    <LinearLayout
+        android:gravity="center_horizontal|center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView
+            android:gravity="center"
+            android:text="Audio Recording"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="#dcdcdc" />
+    <LinearLayout
+        android:id="@+id/camera_Linear_posts_addpostactivity"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_horizontal|center_vertical">
+        <LinearLayout
+            android:gravity="center_horizontal|center_vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <ImageView
+                android:id="@+id/camera"
+                android:src="@drawable/camera_logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:gravity="center_horizontal|center_vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <!--<ImageButton-->
+                <!--android:id="@+id/microphone"-->
+                <!--android:src="@drawable/microphone"-->
+                <!--android:layout_width="50dp"-->
+                <!--android:layout_height="50dp" />-->
+            <br.com.safety.audio_recorder.AudioRecordButton
+                android:id="@+id/audio_record_button"
+                android:layout_centerInParent="true"
+                android:layout_width="150dp"
+                android:layout_height="80dp" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
+</ScrollView>

@@ -16,7 +16,7 @@ public class OptionsEntity implements Serializable{
     String ID;
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
     String AudioFile;
-
+    String AUTHOR_PHOTO;
     public String getAudioFile() {
         return AudioFile;
     }

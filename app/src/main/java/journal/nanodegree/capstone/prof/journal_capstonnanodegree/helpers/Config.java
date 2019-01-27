@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.Log;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -18,6 +19,11 @@ public class Config {
     public static CoordinatorLayout mCoordinatorLayout;
     public static boolean TwoPane;
     public static int position;
+    public static String currentImagePAth;
+    public static String imageBitmap;
+    public static String image_name;
+    public static String selectedImagePath;
+    public static File StorageDir;
 
     static {
         URL url = null;

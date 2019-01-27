@@ -50,16 +50,22 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout coordinatorLayout;
+    private String TwoPANEExtras_KEY="twoPaneExtras";
+    private String Position_KEY="position";
+    private String ArticleInfo_KEY="ArticleInfo";
+    private String Frags_KEY="frags";
+    private String SoundFrag_KEY="Sound";
+    private String ArticleFrag_KEY="Article";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_types_list);
-        ButterKnife.bind(this);
 
         if (findViewById(R.id.ArticleDetails)!=null) {
             mTwoPaneUi = true;
         }else {
+            ButterKnife.bind(this);
             mTwoPaneUi = false;
             setSupportActionBar(mToolbar);
             assert getSupportActionBar()!=null;
@@ -75,9 +81,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         }
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
-
         Bundle bundle=getIntent().getExtras();
-
         ArticleType_=bundle.getString(ArticleType);
 
         if (ArticleType_.equals(ARTS)){
@@ -118,7 +122,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         ArticlesMasterListFragment articlesMasterListFragment= new ArticlesMasterListFragment();
         articlesMasterListFragment.setArguments(bundle2);
         getFragmentManager().beginTransaction()
-                .replace(R.id.master_list_fragment, articlesMasterListFragment, "frags")
+                .replace(R.id.master_list_fragment, articlesMasterListFragment, Frags_KEY)
                 .commit();
         FragmentSoundPlayer fragmentSoundPlayer=new FragmentSoundPlayer();
         FragmentArticleViewer fragmentArticleViewer=new FragmentArticleViewer();
@@ -126,10 +130,10 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             mTwoPaneUi=true;
             if (savedInstanceState!=null){
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.Audio_container, fragmentSoundPlayer, "frags")
+                        .replace(R.id.Audio_container, fragmentSoundPlayer, Frags_KEY)
                         .commit();
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.Article_container, fragmentArticleViewer, "frags")
+                        .replace(R.id.Article_container, fragmentArticleViewer, Frags_KEY)
                         .commit();
             }
         }else {
@@ -142,22 +146,22 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     public void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {
         if (mTwoPaneUi) {
             Bundle twoPaneExtras = new Bundle();
-            twoPaneExtras.putSerializable("twoPaneExtras", optionsEntity);
-            twoPaneExtras.putInt("position",position);
+            twoPaneExtras.putSerializable(TwoPANEExtras_KEY, optionsEntity);
+            twoPaneExtras.putInt(Position_KEY,position);
             FragmentSoundPlayer soundPlayer=new FragmentSoundPlayer();
             FragmentArticleViewer articleViewer=new FragmentArticleViewer();
             soundPlayer.setArguments(twoPaneExtras);
             articleViewer.setArguments(twoPaneExtras);
             getFragmentManager().beginTransaction()
-                    .replace(R.id.Audio_container, soundPlayer, "Sound")
+                    .replace(R.id.Audio_container, soundPlayer, SoundFrag_KEY)
                     .commit();
             getFragmentManager().beginTransaction()
-                    .replace(R.id.Article_container, articleViewer, "Article")
+                    .replace(R.id.Article_container, articleViewer, ArticleFrag_KEY)
                     .commit();
         }else if (!mTwoPaneUi){
             Intent intent = new Intent(this, ArticleDetailsActivity.class)
-                    .putExtra("ArticleInfo", optionsEntity)
-                    .putExtra("position", position);
+                    .putExtra(ArticleInfo_KEY, optionsEntity)
+                    .putExtra(Position_KEY, position);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             this.startActivity(intent);
         }
@@ -165,6 +169,6 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
 
     @Override
     public void onRefresh() {
-        Toast.makeText(getApplicationContext()," It's Okay", Toast.LENGTH_LONG);
+        Toast.makeText(getApplicationContext(),getString(R.string.okay), Toast.LENGTH_LONG);
     }
 }
