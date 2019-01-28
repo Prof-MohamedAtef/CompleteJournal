@@ -33,7 +33,7 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
 
     private int RECORD_AUDIO_REQUEST_CODE =123 ;
     @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    android.support.v7.widget.Toolbar toolbar;
     @BindView(R.id.chronometerTimer)
     Chronometer chronometerTimer;
     @BindView(R.id.imageViewRecord)
@@ -114,7 +114,6 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
         if (!file.exists()) {
             file.mkdirs();
         }
-
         fileName =  root.getAbsolutePath() + "/VoiceRecorderSimplifiedCoding/Audios/" +
                 String.valueOf(System.currentTimeMillis() + ".mp3");
         Log.d("filename",fileName);
@@ -131,10 +130,9 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
         seekBar.setProgress(0);
         stopPlaying();
         //starting the chronometer
-        chronometer.setBase(SystemClock.elapsedRealtime());
-        chronometer.start();
+        chronometerTimer.setBase(SystemClock.elapsedRealtime());
+        chronometerTimer.start();
     }
-
 
     private void stopPlaying() {
         try{
@@ -145,7 +143,7 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
         mPlayer = null;
         //showing the play button
         imageViewPlay.setImageResource(R.drawable.ic_play);
-        chronometer.stop();
+        chronometerTimer.stop();
     }
 
     private void prepareforStop() {
@@ -165,18 +163,95 @@ public class AudioActivity extends AppCompatActivity implements View.OnClickList
         }
         mRecorder = null;
         //starting the chronometer
-        chronometer.stop();
-        chronometer.setBase(SystemClock.elapsedRealtime());
+        chronometerTimer.stop();
+        chronometerTimer.setBase(SystemClock.elapsedRealtime());
         //showing the play button
-        Toast.makeText(this, "Recording saved successfully.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.recording_saved_successfully), Toast.LENGTH_SHORT).show();
+    }
+
+    private void startPlaying() {
+        mPlayer = new MediaPlayer();
+        try {
+//fileName is global string. it contains the Uri to the recently recorded audio.
+            mPlayer.setDataSource(fileName);
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            Log.e("LOG_TAG", "prepare() failed");
+        }
+        //making the imageview pause button
+        imageViewPlay.setImageResource(R.drawable.ic_pause);
+        seekBar.setProgress(lastProgress);
+        mPlayer.seekTo(lastProgress);
+        seekBar.setMax(mPlayer.getDuration());
+        seekUpdation();
+        chronometerTimer.start();
+
+        /** once the audio is complete, timer is stopped here**/
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                imageViewPlay.setImageResource(R.drawable.ic_play);
+                isPlaying = false;
+                chronometerTimer.stop();
+            }
+        });
+
+        /** moving the track as per the seekBar's position**/
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if( mPlayer!=null && fromUser ){
+                    //here the track's progress is being changed as per the progress bar
+                    mPlayer.seekTo(progress);
+                    //timer is being updated as per the progress of the seekbar
+                    chronometerTimer.setBase(SystemClock.elapsedRealtime() - mPlayer.getCurrentPosition());
+                    lastProgress = progress;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+    }
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            seekUpdation();
+        }
+    };
+
+    private void seekUpdation() {
+        if(mPlayer != null){
+            int mCurrentPosition = mPlayer.getCurrentPosition() ;
+            seekBar.setProgress(mCurrentPosition);
+            lastProgress = mCurrentPosition;
+        }
+        mHandler.postDelayed(runnable, 100);
     }
 
     @Override
     public void onClick(View v) {
         if (v==imageViewRecord){
             prepareforRecording();
-        }else if (v==imageViewStop){
             startRecording();
+        }else if (v==imageViewStop) {
+            prepareforStop();
+            stopRecording();
+        }else if (v==imageViewPlay){
+            if (!isPlaying&&fileName!=null){
+                isPlaying=true;
+                startPlaying();
+            }else {
+                isPlaying=false;
+                stopPlaying();
+            }
         }
     }
 }

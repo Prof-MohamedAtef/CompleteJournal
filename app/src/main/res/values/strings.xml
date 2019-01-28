@@ -20,6 +20,9 @@
     <string name="text_write_external_permission">This app will Write on The External Storage of this device</string>
     <string name="ok">Okay</string>
 
+    <string name="recording_saved_successfully">Recording saved successfully</string>
+
+
     <!--drawer-->
     <string name="publish">Publish</string>
     <string name="urgent_news">Urgent</string>

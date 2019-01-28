@@ -26,6 +26,7 @@
     <color name="primaryLightColor">#439889</color>
     <color name="primaryDarkColor">#003d33</color>
     <color name="primaryTextColor">#ffffff</color>
+    <color name="black">#000000</color>
 
 
 </resources>

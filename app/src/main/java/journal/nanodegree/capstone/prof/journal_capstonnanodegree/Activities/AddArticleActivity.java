@@ -13,30 +13,20 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import br.com.safety.audio_recorder.AudioListener;
-import br.com.safety.audio_recorder.AudioRecordButton;
-import br.com.safety.audio_recorder.AudioRecording;
-import br.com.safety.audio_recorder.RecordingItem;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
-
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class AddArticleActivity extends AppCompatActivity {
@@ -48,15 +38,14 @@ public class AddArticleActivity extends AppCompatActivity {
     private int day;
     String imageFileName;
     String currentImagePAth;
-
     @BindView(R.id.camera)
     ImageView Camera;
-
     @BindView(R.id.ImageReport)
     ImageView ImageReport;
-
     @BindView(R.id.DateTime)
     TextView DateTime;
+    @BindView(R.id.microphone)
+    ImageButton microphone;
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 55;
     private String IMAGE_TYPE="image/*";
@@ -84,6 +73,15 @@ public class AddArticleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_article);
         ButterKnife.bind(this);
+
+        microphone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), AudioActivity.class);
+                startActivity(i);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
+        });
                 calendar = new Calendar() {
                     @Override
                     protected void computeTime() {

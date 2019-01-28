@@ -148,16 +148,11 @@ xmlns:android="http://schemas.android.com/apk/res/android">
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-            <!--<ImageButton-->
-                <!--android:id="@+id/microphone"-->
-                <!--android:src="@drawable/microphone"-->
-                <!--android:layout_width="50dp"-->
-                <!--android:layout_height="50dp" />-->
-            <br.com.safety.audio_recorder.AudioRecordButton
-                android:id="@+id/audio_record_button"
-                android:layout_centerInParent="true"
-                android:layout_width="150dp"
-                android:layout_height="80dp" />
+            <ImageButton
+                android:id="@+id/microphone"
+                android:src="@drawable/microphone"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
