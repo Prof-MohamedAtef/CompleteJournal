@@ -19,6 +19,8 @@
     <string name="title_write_external_storage_permission">Write External</string>
     <string name="text_write_external_permission">This app will Write on The External Storage of this device</string>
     <string name="ok">Okay</string>
+    <string name="appwidget_text">WidgetExample</string>
+
 
     <string name="recording_saved_successfully">Recording saved successfully</string>
 

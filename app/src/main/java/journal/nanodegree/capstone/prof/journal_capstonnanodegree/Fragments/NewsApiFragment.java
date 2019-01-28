@@ -19,6 +19,8 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.NewsApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Services.UrgentWidgetService;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 /**
  * Created by Prof-Mohamed Atef on 1/3/2019.
@@ -31,6 +33,7 @@ ArticlesMasterListFragment.OnSelectedArticleListener{
     String URL;
     private boolean TwoPane;
     RecyclerView recyclerView;
+    SessionManagement sessionManagement;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -51,6 +54,7 @@ ArticlesMasterListFragment.OnSelectedArticleListener{
         View rootView=inflater.inflate(R.layout.fragment_ui_identifier,container,false);
         recyclerView=(RecyclerView)rootView.findViewById(R.id.recycler_view);
         Bundle bundle=getArguments();
+        sessionManagement=new SessionManagement(getActivity());
         URL= bundle.getString(Urgent);
         if (rootView.findViewById(R.id.two_pane)!=null){
             TwoPane=true;
@@ -68,6 +72,14 @@ ArticlesMasterListFragment.OnSelectedArticleListener{
             recyclerView.setLayoutManager(mLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(mAdapter);
+            String UrgentTextLines;
+            String UrgentOneLine = null;
+            for (OptionsEntity x : result){
+                UrgentTextLines=x.getTITLE().toString();
+                UrgentOneLine+=UrgentTextLines+".\n";
+            }
+            sessionManagement.createUrgentIntoPrefs(UrgentOneLine);
+            UrgentWidgetService.startActionFillWidget(getActivity());
         }
     }
 

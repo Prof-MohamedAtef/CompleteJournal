@@ -25,6 +25,7 @@ public class Config {
     public static String selectedImagePath;
     public static File StorageDir;
 
+
     static {
         URL url = null;
         try {

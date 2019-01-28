@@ -22,6 +22,7 @@ public class SessionManagement {
     public static final String KEY_idToken= "idToken";
     public static final String KEY_userID= "userID";
     public static final String KEY_LoginType= "LoginType";
+    public static final String KEY_Urgent="Urgent";
 
 
     public SessionManagement(Context context) {
@@ -77,5 +78,16 @@ public class SessionManagement {
         user.put(KEY_Profile_Pic, pref.getString(KEY_Profile_Pic, null));
         user.put(KEY_idToken, pref.getString(KEY_idToken, null));
         return user;
+    }
+
+    public void createUrgentIntoPrefs(String Urgent){
+        editor.putString(KEY_Urgent, Urgent);
+        editor.apply();
+    }
+
+    public HashMap<String, String> getUrgentFromPrefs(){
+        HashMap<String, String> Urgent=new HashMap<>();
+        Urgent.put(KEY_Urgent, pref.getString(KEY_Urgent,null));
+        return Urgent;
     }
 }
