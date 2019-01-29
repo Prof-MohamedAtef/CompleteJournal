@@ -36,6 +36,11 @@ ArticlesMasterListFragment.OnSelectedArticleListener{
     SessionManagement sessionManagement;
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         VerifyConnection verifyConnection=new VerifyConnection(getActivity());
@@ -85,7 +90,6 @@ ArticlesMasterListFragment.OnSelectedArticleListener{
 
     @Override
     public void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {
-
     }
 
     public interface NewsApiSelectedArticleListener {

@@ -10,11 +10,14 @@
     <color name="primary_dark">#C2185B</color>
     <color name="primary_light">#F8BBD0</color>
     <color name="accent">#FFC107</color>
+    <color name="yellow">#fef65b</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
     <color name="icons">#FFFFFF</color>
     <color name="black_overlay">#66000000</color>
     <color name="divider">#BDBDBD</color>
+    <color name="grey">#4D455a64</color>
+
     <color name="blue">#10a2e3</color>
     <color name="semi_blue_green">#5E8682</color>
 
