@@ -480,14 +480,31 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                     imageBitmap= LoadThenDecodeBitmap();
                     setBitmapToImageView(imageBitmap);
                 }else {
-                    try {
-                        getUriFromFile(data);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    Bundle selectedImage = data.getExtras();
+                    filePathColumn = new String[]{MediaStore.Images.Media.DATA};
+//                    String filePath =  MediaStore.Images.Media.DATA ;
+                    Bitmap  imagebitmap=(Bitmap)selectedImage.get(DATA_KEY);
+                    Config.imageBitmap=imagebitmap.toString();
+//                    Cursor c = getContentResolver().query(Uri.parse(filePath), filePathColumn, null, null, null);
+//                    c.moveToFirst();
+//                    int columnIndex = c.getColumnIndex(filePathColumn[0]);
+//                    selectedImagePath = c.getString(columnIndex);
+//                    Config.image_name=selectedImagePath;
+//                    c.close();
+                    if (imagebitmap != null) {
+//                        bitmap = BitmapFactory.decodeFile(selectedImagePath);
+                        bitmap = Bitmap.createScaledBitmap(imagebitmap, 400, 400, false);
+                        setBitmapToImageView(bitmap);
+//                        ImageReport.setImageBitmap(bitmap);
                     }
-                    imageBitmap= LoadThenDecodeBitmapError();
 
-                    setBitmapToImageView(imageBitmap);
+//                    try {
+//                        getUriFromFile(data);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    imageBitmap= LoadThenDecodeBitmapError();
+//                    setBitmapToImageView(imageBitmap);
                 }
             }
             if (Config.currentImagePAth!=null){
@@ -708,6 +725,9 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 
     private void setBitmapToImageView(Bitmap imageBitmap) {
         if (ImageReport.getDrawable()==null){
+            ImageReport.setImageBitmap(imageBitmap);
+            HasImage=true;
+        }else {
             ImageReport.setImageBitmap(imageBitmap);
             HasImage=true;
         }

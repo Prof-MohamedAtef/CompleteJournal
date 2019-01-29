@@ -378,8 +378,12 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
-        this.dialog.show();
+        try{
+            this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
+            this.dialog.show();
+        }catch (Exception e){
+            Log.v(LOG_TAG, "Problem in ProgressDialogue" );
+        }
     }
 
     public interface OnWebHoseTaskCompleted{

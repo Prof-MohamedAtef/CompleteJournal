@@ -51,7 +51,7 @@ public class CustomSpinnerAdapter extends BaseAdapter {
         txt.setTextSize(18);
         txt.setGravity(Gravity.CENTER_VERTICAL);
         txt.setText(SpinnerFeedItemList.get(position));
-        txt.setTextColor(Color.parseColor("#000000"));
+        txt.setTextColor(Color.parseColor("#FFFFFF"));
         return  txt;
     }
     TextView txt;
@@ -62,8 +62,8 @@ public class CustomSpinnerAdapter extends BaseAdapter {
         txt.setPadding(10, 10, 10, 10);
         txt.setTextSize(16);
         txt.setText(SpinnerFeedItemList.get(position));
-        txt.setTextColor(Color.parseColor("#000000"));
-        txt.setBackgroundResource(R.color.yellow);
+        txt.setTextColor(Color.parseColor("#FFFFFF"));
+        txt.setBackgroundResource(R.color.primaryColor);
         return  txt;
     }
 }
