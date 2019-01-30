@@ -1,42 +1,34 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments;
 
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.PlaybackParameters;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.squareup.picasso.Picasso;
-
+import java.io.File;
 import java.io.IOException;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
@@ -44,27 +36,121 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
  * Created by Prof-Mohamed Atef on 1/10/2019.
  */
 
-public class FragmentSoundPlayer extends android.app.Fragment implements ExoPlayer.EventListener{
+public class FragmentSoundPlayer extends android.app.Fragment implements View.OnClickListener{
 
     TrackSelector trackSelector;
     MediaSource AudioSource;
     DefaultDataSourceFactory dataSourceFactory;
     SimpleExoPlayer mSimpleExoPlayer;
-    PlayerView playerView;
     String AudioString;
     Uri AudioUri;
     public static OptionsEntity optionsEntity;
     public static String KEY_optionsEntity="Options";
     private ImageView audio_muted;
+    private MediaPlayer mPlayer;
+    private String fileName = null;
+    private int lastProgress = 0;
+    private Handler mHandler = new Handler();
+    private boolean isPlaying = false;
+    @BindView(R.id.imageViewPlay)
+    ImageView imageViewPlay;
+    @BindView(R.id.chronometerTimer)
+    Chronometer chronometerTimer;
+    @BindView(R.id.seekBar)
+    SeekBar seekBar;
+    @BindView(R.id.linearLayoutPlay)
+    LinearLayout linearLayoutPlay;
+
+    private void stopPlaying() {
+        try{
+            mPlayer.release();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        mPlayer = null;
+        //showing the play button
+        imageViewPlay.setImageResource(R.drawable.ic_play);
+        chronometerTimer.stop();
+    }
+
+    private void startPlaying() {
+        mPlayer = new MediaPlayer();
+        try {
+//fileName is global string. it contains the Uri to the recently recorded audio.
+            mPlayer.setDataSource(fileName);
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            Log.e("LOG_TAG", "prepare() failed");
+        }
+        //making the imageview pause button
+        imageViewPlay.setImageResource(R.drawable.ic_pause);
+        seekBar.setProgress(lastProgress);
+        mPlayer.seekTo(lastProgress);
+        seekBar.setMax(mPlayer.getDuration());
+        seekUpdation();
+        chronometerTimer.start();
+
+        /** once the audio is complete, timer is stopped here**/
+        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                imageViewPlay.setImageResource(R.drawable.ic_play);
+                isPlaying = false;
+                chronometerTimer.stop();
+            }
+        });
+
+        /** moving the track as per the seekBar's position**/
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if( mPlayer!=null && fromUser ){
+                    //here the track's progress is being changed as per the progress bar
+                    mPlayer.seekTo(progress);
+                    //timer is being updated as per the progress of the seekbar
+                    chronometerTimer.setBase(SystemClock.elapsedRealtime() - mPlayer.getCurrentPosition());
+                    lastProgress = progress;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+    }
+
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            seekUpdation();
+        }
+    };
+
+    private void seekUpdation() {
+        if(mPlayer != null){
+            int mCurrentPosition = mPlayer.getCurrentPosition() ;
+            seekBar.setProgress(mCurrentPosition);
+            lastProgress = mCurrentPosition;
+        }
+        mHandler.postDelayed(runnable, 100);
+    }
+
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_audio_player, container, false);
-        playerView=(PlayerView) rootView.findViewById(R.id.player_view);
+        ButterKnife.bind(this, rootView);
         audio_muted=(ImageView)rootView.findViewById(R.id.audio_muted);
         audio_muted.setVisibility(View.GONE);
-        playerView.setVisibility(View.GONE);
+        initializeAudioPlayer();
         return rootView;
     }
 
@@ -103,11 +189,12 @@ public class FragmentSoundPlayer extends android.app.Fragment implements ExoPlay
         releasePlayer();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-//        initAudioMediaPlayer(AudioUri);
-        initializePlayer(AudioUri);
+    private void initializeAudioPlayer() {
+        File root = android.os.Environment.getExternalStorageDirectory();
+        File file = new File(root.getAbsolutePath() + "/VoiceRecorderSimplifiedCoding/Audios");
+        if (file.exists()) {
+            fileName = root.getAbsolutePath() + "/VoiceRecorderSimplifiedCoding/Audios/" + "1548717911705" + ".mp3";
+        }
     }
 
     @Override
@@ -129,15 +216,17 @@ public class FragmentSoundPlayer extends android.app.Fragment implements ExoPlay
                 DisplayData(optionsEntity);
             }
         }
+        imageViewPlay.setOnClickListener(this);
     }
 
     private void DisplayData(OptionsEntity optionsEntity) {
         AudioString = optionsEntity.getAudioFile();
-        if (AudioString!=null){
-        AudioUri = Uri.parse(AudioString);
-        playerView.setVisibility(View.VISIBLE);
-        initializePlayer(AudioUri);
-
+//        if (AudioString!=null){
+//        AudioUri = Uri.parse(AudioString);
+//        playerView.setVisibility(View.VISIBLE);
+//        initializePlayer(AudioUri);
+        if (fileName!=null){
+            linearLayoutPlay.setVisibility(View.VISIBLE);
         }else {
             audio_muted.setVisibility(View.VISIBLE);
             Drawable x =ContextCompat.getDrawable(getActivity(),R.drawable.audio_mute);
@@ -147,75 +236,16 @@ public class FragmentSoundPlayer extends android.app.Fragment implements ExoPlay
         }
     }
 
-    public void initializePlayer(Uri AudioUri){
-        try {
-            if (mSimpleExoPlayer == null) {
-                // Create an instance of the ExoPlayer.
-                TrackSelector trackSelector = new DefaultTrackSelector();
-                LoadControl loadControl = new DefaultLoadControl();
-                mSimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector, loadControl);
-                playerView.setPlayer(mSimpleExoPlayer);
-                // Set the ExoPlayer.EventListener to this activity.
-                mSimpleExoPlayer.addListener(this);
-                // Prepare the MediaSource.
-                String userAgent = com.google.android.exoplayer2.util.Util.getUserAgent(getActivity(), "MoAtefBackingApp");
-                MediaSource mediaSource = new ExtractorMediaSource(AudioUri, new DefaultDataSourceFactory(
-                        getActivity(), userAgent), new DefaultExtractorsFactory(), null, null);
-                mSimpleExoPlayer.prepare(mediaSource);
-                mSimpleExoPlayer.setPlayWhenReady(true);
+    @Override
+    public void onClick(View v) {
+        if (v==imageViewPlay){
+            if (!isPlaying&&fileName!=null){
+                isPlaying=true;
+                startPlaying();
+            }else {
+                isPlaying=false;
+                stopPlaying();
             }
-        }catch (Exception e){
-            Toast.makeText(getActivity(), getString(R.string.unavailable), Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
-
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-    }
-
-    @Override
-    public void onPlayerError(ExoPlaybackException error) {
-
-    }
-
-    @Override
-    public void onPositionDiscontinuity(int reason) {
-
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-    }
-
-    @Override
-    public void onSeekProcessed() {
-
     }
 }

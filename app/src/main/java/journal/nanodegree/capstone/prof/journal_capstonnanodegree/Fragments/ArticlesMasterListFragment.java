@@ -23,6 +23,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Generi
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.NEWSAPI_KEY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.TwoPANEExtras_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.WebHoseAPIKEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.UrgentURL;
@@ -66,7 +67,7 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
         URL= bundle.getString(URL_KEY);
         NewsApiVerifier=bundle.getString(NEWSAPI_KEY);
         WebHoseVerifier=bundle.getString(WebHoseAPIKEY);
-
+        TwoPane=bundle.getBoolean(TwoPANEExtras_KEY);
         if (savedInstanceState!=null){
             if (UrgentArticlesList.isEmpty()){
                 UrgentArticlesList= (ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_UrgentArray);
@@ -125,10 +126,9 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView=inflater.inflate(R.layout.articles_fragment_master_list,container,false);
-        recyclerView=(RecyclerView)rootView.findViewById(R.id.recycler_view);
-        recyclerView_Horizontal=(RecyclerView)rootView.findViewById(R.id.recycler_view_horizontal);
-        if (rootView.findViewById(R.id.two_pane)!=null){
-            TwoPane=true;
+        if (!TwoPane){
+            recyclerView=(RecyclerView)rootView.findViewById(R.id.recycler_view);
+            recyclerView_Horizontal=(RecyclerView)rootView.findViewById(R.id.recycler_view_horizontal);
         }
         return rootView;
     }

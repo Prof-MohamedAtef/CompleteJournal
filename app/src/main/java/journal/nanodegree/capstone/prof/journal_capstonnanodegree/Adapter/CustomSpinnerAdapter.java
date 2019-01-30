@@ -51,9 +51,10 @@ public class CustomSpinnerAdapter extends BaseAdapter {
         txt.setTextSize(18);
         txt.setGravity(Gravity.CENTER_VERTICAL);
         txt.setText(SpinnerFeedItemList.get(position));
-        txt.setTextColor(Color.parseColor("#FFFFFF"));
+        txt.setTextColor(Color.parseColor("#000000"));
         return  txt;
     }
+
     TextView txt;
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

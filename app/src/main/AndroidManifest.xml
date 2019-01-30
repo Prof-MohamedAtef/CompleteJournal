@@ -68,7 +68,6 @@
             android:parentActivityName=".Activities.HomeActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
         <activity
             android:name=".Activities.ArticleDetailsActivity"
             android:parentActivityName=".Activities.ArticleTypesListActivity"
@@ -76,7 +75,7 @@
         <activity
             android:name=".Activities.ArticleTypesListActivity"
             android:parentActivityName=".Activities.HomeActivity"
-            android:theme="@style/ArticleTypesTheme"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".Activities.AudioActivity"></activity>
         <receiver android:name=".Widget.UrgentWidgetProvider">

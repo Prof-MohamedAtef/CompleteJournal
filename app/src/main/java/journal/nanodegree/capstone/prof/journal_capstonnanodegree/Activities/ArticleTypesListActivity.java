@@ -1,15 +1,12 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
 import android.content.Intent;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentArticleViewer;
@@ -33,7 +30,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
 
     public static String WebHoseVerifier="null", NewsApiVerifier="null";
     private String URL;
-    private boolean mTwoPaneUi;
+    private boolean mTwoPaneUi=false;
     private static final String WEBHOSE = "http://webhose.io/filterWebContent?token=";
     private String NEWSAPI="https://newsapi.org/v2/top-headlines?country=eg&category=";
     private String WEBHOSEDETAILS="sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.";
@@ -44,46 +41,44 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     public static String WebHoseAPIKEY="WenHoseAPIKEY";
     private String Arts;
     private String ArticleType_;
-    @BindView(R.id.toolbar)
-    Toolbar mToolbar;
-    @BindView(R.id.swipe_refresh_layout)
-    SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.coordinator_layout)
-    CoordinatorLayout coordinatorLayout;
-    private String TwoPANEExtras_KEY="twoPaneExtras";
+    public static String TwoPANEExtras_KEY="twoPaneExtras";
     private String Position_KEY="position";
     private String ArticleInfo_KEY="ArticleInfo";
     private String Frags_KEY="frags";
     private String SoundFrag_KEY="Sound";
     private String ArticleFrag_KEY="Article";
+    Toolbar mToolbar;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_types_list);
-
-        if (findViewById(R.id.ArticleDetails)!=null) {
+//        setTheme(R.style.ArishTheme);
+        mToolbar=(Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        assert getSupportActionBar()!=null;
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        if (findViewById(R.id.LinearMasterContainerTwoPane)!=null) {
             mTwoPaneUi = true;
-        }else {
-            ButterKnife.bind(this);
+
+        }
+        else {
             mTwoPaneUi = false;
-            setSupportActionBar(mToolbar);
-            assert getSupportActionBar()!=null;
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBackPressed();
-                }
-            });
+            mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
             mSwipeRefreshLayout.setOnRefreshListener(this);
         }
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
         Bundle bundle=getIntent().getExtras();
         ArticleType_=bundle.getString(ArticleType);
-
         if (ArticleType_.equals(ARTS)){
             URL=WEBHOSE+token+"&format=json&ts=1543864086443&"+WEBHOSEDETAILS+"title%3A%D9%81%D9%86%D9%88%D9%86";
             WebHoseVerifier=URL;
@@ -114,11 +109,11 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             URL=NEWSAPI+"business&apiKey="+apiKey;
             NewsApiVerifier=URL;
         }
-
         Bundle bundle2=new Bundle();
         bundle2.putString(URL_KEY,URL);
         bundle2.putString(NEWSAPI_KEY,NewsApiVerifier);
         bundle2.putString(WebHoseAPIKEY,WebHoseVerifier);
+        bundle.putBoolean(TwoPANEExtras_KEY,mTwoPaneUi);
         ArticlesMasterListFragment articlesMasterListFragment= new ArticlesMasterListFragment();
         articlesMasterListFragment.setArguments(bundle2);
         getFragmentManager().beginTransaction()
@@ -126,21 +121,15 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
                 .commit();
         FragmentSoundPlayer fragmentSoundPlayer=new FragmentSoundPlayer();
         FragmentArticleViewer fragmentArticleViewer=new FragmentArticleViewer();
-        if (findViewById(R.id.ArticleDetails)!=null){
-            mTwoPaneUi=true;
-            if (savedInstanceState!=null){
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.Audio_container, fragmentSoundPlayer, Frags_KEY)
-                        .commit();
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.Article_container, fragmentArticleViewer, Frags_KEY)
-                        .commit();
-            }
-        }else {
-            mTwoPaneUi=false;
+        if (findViewById(R.id.LinearMasterContainerTwoPane)!=null){
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.Audio_container, fragmentSoundPlayer, Frags_KEY)
+                    .commit();
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.Article_container, fragmentArticleViewer, Frags_KEY)
+                    .commit();
         }
     }
-
 
     @Override
     public void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {

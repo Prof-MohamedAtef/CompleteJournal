@@ -275,8 +275,10 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
                 reader = new BufferedReader(new InputStreamReader(inputStream));
             }
             String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
+            if (reader!=null){
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
             }
             if (buffer.length() == 0) {
                 return null;
@@ -379,8 +381,12 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
     protected void onPreExecute() {
         super.onPreExecute();
         try{
-            this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
-            this.dialog.show();
+            if (dialog!=null&&dialog.isShowing()){
+                this.dialog.dismiss();
+            }else {
+                this.dialog.setMessage(mContext.getResources().getString(R.string.loading));
+                this.dialog.show();
+            }
         }catch (Exception e){
             Log.v(LOG_TAG, "Problem in ProgressDialogue" );
         }

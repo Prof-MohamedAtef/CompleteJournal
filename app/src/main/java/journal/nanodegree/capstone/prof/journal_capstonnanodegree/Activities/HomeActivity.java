@@ -36,9 +36,13 @@ import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
@@ -48,6 +52,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Listeners.Snac
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         NewsApiFragment.NewsApiSelectedArticleListener{
@@ -78,6 +83,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public static String UrgentURL="https://newsapi.org/v2/top-headlines?country=eg&categor=%D8%B9%D8%A7%D8%AC%D9%84&apiKey=";
     public static String POLITICS_URL="http://webhose.io/filterWebContent?token=43939f70-364f-4f3c-9c4f-84ac4f5ece38&format=json&ts=1543864001127&sort=crawled&q=thread.country%3AEG%20language%3Aarabic%20site_type%3Anews%20thread.title%3A%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9";
     public static String ArticleType="ArticleType";
+    private SessionManagement sessionManagement;
+    private HashMap<String, String> user;
+    private String TokenID;
+    private String LoggedEmail;
+    private String LoggedUserName;
+    private String LoggedProfilePic;
+    private TextView EmailText;
+    private TextView UserNameText;
+    private ImageView ProfilePicView;
+
 
     private boolean checkConnection() {
         return isInternetConnected=isConnected();
@@ -104,17 +119,37 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         webServiceNewsApi=new Bundle();
         webServiceWebHose=new Bundle();
         handler = new Handler();
-
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         View header=navigationView.getHeaderView(0);
-        LogoImage=(ImageView)header.findViewById(R.id.russia_2018_img);
+        EmailText=(TextView)header.findViewById(R.id.Email);
+        UserNameText=(TextView)header.findViewById(R.id.UserName);
+        ProfilePicView=(ImageView)header.findViewById(R.id.profile_image);
+
         final Bundle bundle=new Bundle();
+
+        sessionManagement=new SessionManagement(getApplicationContext());
+        user=sessionManagement.getUserDetails();
+        if (user!=null){
+            LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
+            LoggedUserName=user.get(SessionManagement.KEY_NAME);
+            LoggedProfilePic=user.get(SessionManagement.KEY_Profile_Pic);
+            TokenID=user.get(SessionManagement.KEY_idToken);
+            if (LoggedEmail!=null){
+                EmailText.setText(LoggedEmail);
+            }
+            if (LoggedUserName!=null){
+                UserNameText.setText(LoggedUserName);
+            }
+            if (LoggedProfilePic!=null){
+                Picasso.with(getApplicationContext()).load(LoggedProfilePic)
+                        .error(R.drawable.news)
+                        .into(ProfilePicView);
+            }
+        }
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             // This method will trigger on item Click of navigation menu
             @Override

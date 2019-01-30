@@ -1,6 +1,5 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -28,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,17 +35,25 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.CustomSpinnerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
+
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class AddArticleActivity extends AppCompatActivity implements View.OnClickListener {
@@ -109,6 +117,16 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     ImageView ImageReport;
     @BindView(R.id.DateTime)
     TextView DateTime;
+    @BindView(R.id.ImagePost)
+    ImageView ImagePost;
+    @BindView(R.id.txt_ReportDescription)
+    EditText txt_ReportDescription;
+    @BindView(R.id.txt_ReportTitle)
+    EditText txt_ReportTitle;
+    @BindView(R.id.txtProfileOwner_Posts)
+    TextView UserNameText;
+    @BindView(R.id.ProfileImage_header_Post)
+    CircleImageView ProfilePicView;
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 55;
     private String IMAGE_TYPE="image/*";
@@ -140,6 +158,17 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     private String FAMILY_KEY="FAMILY";
     private String HERITAGE_KEY="HERITAGE";
     private String OPINIONS_KEY="OPINIONS";
+    private String SELECT_CATEGORY="SELECT_CATEGORY";
+    private String Title;
+    private String Description;
+    private String Category;
+    private String Date_STR;
+    private SessionManagement sessionManagement;
+    private HashMap<String, String> user;
+    private String LoggedEmail;
+    private String LoggedUserName;
+    private String LoggedProfilePic;
+    private String TokenID;
 
 
     @Override
@@ -158,31 +187,32 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         setSupportActionBar(detailToolbar);
         assert getSupportActionBar()!=null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        ((AppCompatActivity) getApplicationContext()).setSupportActionBar(detailToolbar);
         detailToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
-//                ((AppCompatActivity) getApplicationContext()).onBackPressed();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
+
         Categories_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // environmental position will show tags
-                if (position==9){
-                }
+                Category=Categories_spinner.getSelectedItem().toString();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
+
+
         ArrayList<String> PostTypes = new ArrayList<String>();
+        PostTypes.add(SELECT_CATEGORY);
         PostTypes.add(URGENT_KEY);
         PostTypes.add(POLITICS_KEY);
         PostTypes.add(ART_CULTURE_KEY);
@@ -242,6 +272,25 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                 DialougeChooseCameraOrGallery();
             }
         });
+
+
+        sessionManagement=new SessionManagement(getApplicationContext());
+        user=sessionManagement.getUserDetails();
+
+        if (user!=null){
+            LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
+            LoggedUserName=user.get(SessionManagement.KEY_NAME);
+            LoggedProfilePic=user.get(SessionManagement.KEY_Profile_Pic);
+            TokenID=user.get(SessionManagement.KEY_idToken);
+            if (LoggedUserName!=null){
+                UserNameText.setText(LoggedUserName);
+            }
+            if (LoggedProfilePic!=null){
+                Picasso.with(getApplicationContext()).load(LoggedProfilePic)
+                        .error(R.drawable.news)
+                        .into(ProfilePicView);
+            }
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -291,7 +340,6 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         Log.d("filename",fileName);
         mRecorder.setOutputFile(fileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
         try {
             mRecorder.prepare();
             mRecorder.start();
@@ -482,29 +530,12 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                 }else {
                     Bundle selectedImage = data.getExtras();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
-//                    String filePath =  MediaStore.Images.Media.DATA ;
-                    Bitmap  imagebitmap=(Bitmap)selectedImage.get(DATA_KEY);
-                    Config.imageBitmap=imagebitmap.toString();
-//                    Cursor c = getContentResolver().query(Uri.parse(filePath), filePathColumn, null, null, null);
-//                    c.moveToFirst();
-//                    int columnIndex = c.getColumnIndex(filePathColumn[0]);
-//                    selectedImagePath = c.getString(columnIndex);
-//                    Config.image_name=selectedImagePath;
-//                    c.close();
-                    if (imagebitmap != null) {
-//                        bitmap = BitmapFactory.decodeFile(selectedImagePath);
-                        bitmap = Bitmap.createScaledBitmap(imagebitmap, 400, 400, false);
+                    imageBitmap=(Bitmap)selectedImage.get(DATA_KEY);
+                    Config.imageBitmap=imageBitmap.toString();
+                    if (imageBitmap!= null) {
+                        bitmap = Bitmap.createScaledBitmap(imageBitmap, 400, 400, false);
                         setBitmapToImageView(bitmap);
-//                        ImageReport.setImageBitmap(bitmap);
                     }
-
-//                    try {
-//                        getUriFromFile(data);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    imageBitmap= LoadThenDecodeBitmapError();
-//                    setBitmapToImageView(imageBitmap);
                 }
             }
             if (Config.currentImagePAth!=null){
@@ -517,45 +548,6 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    private void getUriFromFile(Intent data) throws IOException {
-        Bundle extras = data.getExtras();
-//        Bitmap var_Bitmap = (Bitmap) extras.get(DATA_KEY);
-        imageBitmap = (Bitmap) extras.get(DATA_KEY);
-        try{
-            createImageFile();
-            addPicToPhone();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        /*
-
-         */
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        var_Bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//        byte[] bytes = stream.toByteArray();
-//        try {
-//            OutputStream out;
-//            String root = Environment.getExternalStorageDirectory().getAbsolutePath()+"/";
-//            File createDir = new File(root+"macro2"+File.separator);
-//            boolean isCreated=createDir.mkdir();
-//            boolean isExists=createDir.exists();
-//        File AbsoluteFile=createDir.getAbsoluteFile();
-//        String AbsolutePath=createDir.getAbsolutePath();
-//        String FileName=AbsolutePath+ File.separator +"macro2.jpg";
-//            if (AbsolutePath!=null){
-//                File file = new File(root + "macro2" + File.separator +"macro2.jpg");
-//                File file = new File(FileName);
-//                file.createNewFile();
-//                out = new FileOutputStream(file);
-//                out.write(bytes);
-//                out.close();
-//                selectedImage= Uri.fromFile(file);
-//            }
-//        } catch (IOException e) {
-            // e.printStackTrace();
-//        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -564,19 +556,27 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);
         day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        ImagePost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Title= txt_ReportTitle.getText().toString();
+                Description=txt_ReportDescription.getText().toString();
+                Category=Categories_spinner.getSelectedItem().toString();
+                Date_STR=Now.toString();
+
+                user=sessionManagement.getUserDetails();
+
+                if (user!=null) {
+                    TokenID = user.get(SessionManagement.KEY_idToken);
+                }
+                    if (Title!=null&&Description!=null&&Category!=null&&Date_STR!=null&&imageBitmap!=null&&fileName!=null&&TokenID!=null) {//username/userID
+                    // upload 2 server
+                }
+            }
+        });
     }
 
-    private Bitmap LoadThenDecodeBitmapError(){
-        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        selectedImagePath= cursor.getString(columnIndex);
-        imageBitmap= decodeSampledBitmapFromResource(selectedImagePath,100,100);
-        Config.selectedImagePath=selectedImagePath;
-        Config.imageBitmap=imageBitmap.toString();
-        Config.image_name=selectedImagePath;
-        return imageBitmap;
-    }
     private Bitmap LoadThenDecodeBitmap(){
         Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
         cursor.moveToFirst();
@@ -644,46 +644,6 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         CreateImageFileName();
         File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         Config.StorageDir=storageDirectory;
-//        if (ContextCompat.checkSelfPermission(this,
-//                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-//                new AlertDialog.Builder(this)
-//                        .setTitle(R.string.title_write_external_storage_permission)
-//                        .setMessage(R.string.text_write_external_permission)
-//                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-//                                ActivityCompat.requestPermissions(AddArticleActivity.this,
-//                                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                                        MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
-//                            }
-//                        })
-//                        .create()
-//                        .show();
-
-//            } else {
-                // No explanation needed; request the permission
-//                ActivityCompat.requestPermissions((Activity) getApplicationContext(),
-//                        new String[]{Manifest.permission.MEDIA_CONTENT_CONTROL},55);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-//            }
-//        } else {
-
-
-            // Permission has already been granted
-//        }
         image = CreateTempFileMethod(storageDirectory);
         return image;
     }
@@ -712,7 +672,6 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                             WRITE_EXTERNAL_STORAGE)
                             == PackageManager.PERMISSION_GRANTED) {
                         //Request Writing updates:
-                        Toast.makeText(getApplicationContext(), "Permission permitted to read your External storage", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     // permission denied, boo! Disable the
