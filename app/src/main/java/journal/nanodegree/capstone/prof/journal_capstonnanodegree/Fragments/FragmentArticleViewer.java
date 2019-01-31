@@ -10,6 +10,8 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.google.android.gms.auth.api.Auth;
 import com.squareup.picasso.Picasso;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
@@ -96,6 +98,12 @@ public class FragmentArticleViewer extends android.app.Fragment {
                 Author.setText("");
                 Title.setText("");
             }
+        }else {
+            Date.setText("");
+            Description.setText("");
+            SourceName.setText("");
+            Author.setText("");
+            Title.setText("");
         }
     }
 }

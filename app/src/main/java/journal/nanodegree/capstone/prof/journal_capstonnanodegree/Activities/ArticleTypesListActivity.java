@@ -44,7 +44,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     public static String TwoPANEExtras_KEY="twoPaneExtras";
     private String Position_KEY="position";
     private String ArticleInfo_KEY="ArticleInfo";
-    private String Frags_KEY="frags";
+    public static final String Frags_KEY="frags";
     private String SoundFrag_KEY="Sound";
     private String ArticleFrag_KEY="Article";
     Toolbar mToolbar;
@@ -53,27 +53,26 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        setTheme(R.style.ArticleTypesTheme);
         setContentView(R.layout.activity_article_types_list);
-//        setTheme(R.style.ArishTheme);
-        mToolbar=(Toolbar)findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        assert getSupportActionBar()!=null;
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-        if (findViewById(R.id.LinearMasterContainerTwoPane)!=null) {
+        if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
             mTwoPaneUi = true;
-
         }
         else {
+            mToolbar=(Toolbar)findViewById(R.id.toolbar);
+            setSupportActionBar(mToolbar);
+            assert getSupportActionBar()!=null;
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
             mTwoPaneUi = false;
-            mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
-            mSwipeRefreshLayout.setOnRefreshListener(this);
+//            mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
+//            mSwipeRefreshLayout.setOnRefreshListener(this);
         }
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
@@ -121,7 +120,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
                 .commit();
         FragmentSoundPlayer fragmentSoundPlayer=new FragmentSoundPlayer();
         FragmentArticleViewer fragmentArticleViewer=new FragmentArticleViewer();
-        if (findViewById(R.id.LinearMasterContainerTwoPane)!=null){
+        if (findViewById(R.id.coordinator_layout_twoPane)!=null){
             getFragmentManager().beginTransaction()
                     .replace(R.id.Audio_container, fragmentSoundPlayer, Frags_KEY)
                     .commit();

@@ -22,6 +22,8 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Generi
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.WebHoseApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.Frags_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.NEWSAPI_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.TwoPANEExtras_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
@@ -126,9 +128,10 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView=inflater.inflate(R.layout.articles_fragment_master_list,container,false);
-        if (!TwoPane){
-            recyclerView=(RecyclerView)rootView.findViewById(R.id.recycler_view);
-            recyclerView_Horizontal=(RecyclerView)rootView.findViewById(R.id.recycler_view_horizontal);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        recyclerView_Horizontal = (RecyclerView) rootView.findViewById(R.id.recycler_view_horizontal);
+        if (rootView.findViewById(R.id.two_pane)!=null){
+            TwoPane=true;
         }
         return rootView;
     }
