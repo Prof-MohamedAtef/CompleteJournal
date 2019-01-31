@@ -130,9 +130,6 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
         View rootView=inflater.inflate(R.layout.articles_fragment_master_list,container,false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         recyclerView_Horizontal = (RecyclerView) rootView.findViewById(R.id.recycler_view_horizontal);
-        if (rootView.findViewById(R.id.two_pane)!=null){
-            TwoPane=true;
-        }
         return rootView;
     }
 

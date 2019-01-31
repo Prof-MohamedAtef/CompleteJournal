@@ -44,7 +44,8 @@ android:id="@+id/coordinator_layout_twoPane">
         android:layout_height="match_parent"
         android:id="@+id/LinearMasterContainerTwoPane">
         <FrameLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="2"
             android:layout_height="match_parent"
             android:id="@+id/master_list_fragment"/>
         <View
@@ -53,7 +54,7 @@ android:id="@+id/coordinator_layout_twoPane">
             android:background="@android:color/darker_gray"/>
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_weight="3"
+            android:layout_weight="3.5"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:background="#FFF"
