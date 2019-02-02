@@ -13,8 +13,8 @@ android:layout_height="match_parent">
     android:layout_margin="@dimen/card_margin"
     android:elevation="3dp"
     android:paddingBottom="4dp"
-    android:paddingLeft="4dp"
-    android:paddingRight="4dp"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
     card_view:cardCornerRadius="@dimen/card_album_radius">
     <LinearLayout
         android:padding="@dimen/text_padding"
@@ -38,8 +38,8 @@ android:layout_height="match_parent">
             android:id="@+id/ArticleSource"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/image_linear"
-            android:layout_marginLeft="3dp"
+            android:layout_toEndOf="@id/image_linear"
+            android:layout_marginStart="3dp"
             android:textColor="@color/primaryLightColor"/>
         <TextView
             android:id="@+id/ArticleTitle"
@@ -48,8 +48,8 @@ android:layout_height="match_parent">
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_below="@id/ArticleSource"
-            android:layout_toRightOf="@id/image_linear"
-            android:layout_marginLeft="2dp"
+            android:layout_toEndOf="@id/image_linear"
+            android:layout_marginStart="2dp"
             android:textColor="@color/primaryLightColor"/>
     </LinearLayout>
 </android.support.v7.widget.CardView>

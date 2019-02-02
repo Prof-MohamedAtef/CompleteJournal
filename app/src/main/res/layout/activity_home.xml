@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="5dp"
+    android:autoMirrored="true"
     android:background="@drawable/stanly"
     tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity"
     app:headerLayout="@layout/header_navigation"

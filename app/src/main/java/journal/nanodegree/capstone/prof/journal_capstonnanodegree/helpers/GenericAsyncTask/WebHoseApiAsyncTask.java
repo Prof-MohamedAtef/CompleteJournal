@@ -27,6 +27,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -74,7 +75,7 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
 
     @Override
     protected ArrayList<OptionsEntity> doInBackground(String... params) {
-        /*String Articles_JsonSTR = null;
+        String Articles_JsonSTR = null;
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -131,9 +132,9 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
             Log.e(LOG_TAG, "didn't got Articles Data from getJsonData method", e);
             e.printStackTrace();
         }
-        return null;*/
+        return null;
 
-        CertificateFactory cf = null;
+        /*CertificateFactory cf = null;
 
         try {
             cf = CertificateFactory.getInstance("X.509");
@@ -237,9 +238,9 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
         if (params.length == 0) {
             return null;
         }
-        HttpsURLConnection urlConnection = null;
+        HttpURLConnection urlConnection = null;
         try {
-            urlConnection = (HttpsURLConnection)url.openConnection();
+            urlConnection = (HttpURLConnection) url.openConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -252,13 +253,11 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
             e.printStackTrace();
         }
 //            copyInputStreamToOutputStream(in, System.out);
-
-
             /*
             End of SSL
              */
 
-
+/*
         String UsersDesires_JsonSTR = null;
 
 //            HttpURLConnection urlConnection = null;
@@ -306,7 +305,7 @@ public class WebHoseApiAsyncTask extends AsyncTask<String, Void, ArrayList<Optio
             Log.e(LOG_TAG, "didn't got Users Desires from getJsonData method", e);
             e.printStackTrace();
         }
-        return null;
+        return null;*/
     }
 
     private ArrayList<OptionsEntity> getArticlesJson(String articles_jsonSTR) throws JSONException {

@@ -55,25 +55,32 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         super.onCreate(savedInstanceState);
 //        setTheme(R.style.ArticleTypesTheme);
         setContentView(R.layout.activity_article_types_list);
-        if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
-            mTwoPaneUi = true;
-        }
-        else {
-            mToolbar=(Toolbar)findViewById(R.id.toolbar);
-            setSupportActionBar(mToolbar);
-            assert getSupportActionBar()!=null;
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBackPressed();
-                }
-            });
-            mTwoPaneUi = false;
+//        if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
+//            mTwoPaneUi = true;
+//        }
+//        else {
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+//            mTwoPaneUi = false;
 //            mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
 //            mSwipeRefreshLayout.setOnRefreshListener(this);
-        }
+//        }
+
+
+                if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
+                    mTwoPaneUi = true;
+                } else {
+                    mTwoPaneUi = false;
+                }
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
         Bundle bundle=getIntent().getExtras();
@@ -112,7 +119,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         bundle2.putString(URL_KEY,URL);
         bundle2.putString(NEWSAPI_KEY,NewsApiVerifier);
         bundle2.putString(WebHoseAPIKEY,WebHoseVerifier);
-        bundle.putBoolean(TwoPANEExtras_KEY,mTwoPaneUi);
+        bundle2.putBoolean(TwoPANEExtras_KEY,mTwoPaneUi);
         ArticlesMasterListFragment articlesMasterListFragment= new ArticlesMasterListFragment();
         articlesMasterListFragment.setArguments(bundle2);
         getFragmentManager().beginTransaction()

@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/primaryColor"
     android:autoMirrored="true"
+    android:background="@color/primaryColor"
     android:id="@+id/coordinator_layout">
     <android.support.design.widget.AppBarLayout
     android:layout_width="match_parent"
@@ -30,8 +30,8 @@
             android:src="@drawable/stanly" />
         <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-        android:layout_marginRight="@dimen/list_toolbar_side_margin"
+        android:layout_marginStart="@dimen/list_toolbar_side_margin"
+        android:layout_marginEnd="@dimen/list_toolbar_side_margin"
         android:layout_height="?actionBarSize"
         android:layout_gravity="bottom"
         android:layout_width="match_parent"

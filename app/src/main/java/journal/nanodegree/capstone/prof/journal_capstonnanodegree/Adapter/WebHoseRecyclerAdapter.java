@@ -3,6 +3,7 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NewsApiFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.WebHoseApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 
 /**
@@ -26,6 +28,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 
 public class WebHoseRecyclerAdapter extends  RecyclerView.Adapter<WebHoseRecyclerAdapter.ViewHOlder> implements Serializable {
 
+    private final String LOG_TAG = WebHoseRecyclerAdapter.class.getSimpleName();
     Context mContext;
     ArrayList<OptionsEntity> feedItemList;
     boolean TwoPane;
@@ -55,11 +58,17 @@ public class WebHoseRecyclerAdapter extends  RecyclerView.Adapter<WebHoseRecycle
                 if (feedItem.getDESCRIPTION()!=null&&feedItem.getNAME()!=null){
                     holder.Description.setText(feedItem.getDESCRIPTION());
                     holder.SourceName.setText(feedItem.getNAME());
-                    if (feedItem.getPUBLISHEDAT()!=null&&feedItem.getURL()!=null&&feedItem.getURLTOIMAGE()!=null){
+                    String ImagePath=feedItem.getURLTOIMAGE().toString();
+                    if (feedItem.getPUBLISHEDAT()!=null&&feedItem.getURLTOIMAGE()!=null){
                         holder.Date.setText(feedItem.getPUBLISHEDAT());
-                        Picasso.with(mContext).load(feedItem.getURLTOIMAGE())
-                                .error(R.drawable.stanly)
-                                .into(holder.Image);
+                        if (ImagePath!=null&&!ImagePath.equals("")){
+                            Picasso.with(mContext).load(ImagePath)
+                                    .error(R.drawable.stanly)
+                                    .into(holder.Image);
+                        }else {
+                            Picasso.with(mContext).load(R.drawable.stanly).into(holder.Image);
+                            Log.v(LOG_TAG, "No URL To Image Returned" );
+                        }
                     }else {holder.Date.setText("");}
                 }else {
                     holder.Description.setText("");
