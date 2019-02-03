@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -32,8 +33,12 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Adapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -47,28 +52,36 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NewsApiFragment;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NoInternetFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.WebhoseApiFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Listeners.SnackBarLauncher;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.SnackBarClassLauncher;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        NewsApiFragment.NewsApiSelectedArticleListener{
+        NewsApiFragment.NewsApiSelectedArticleListener,
+NoInternetFragment.onReloadInternetServiceListener{
 
     private final String LOG_TAG = HomeActivity.class.getSimpleName();
     private ProgressDialog progressDialog;
+    Snackbar snackbar;
+    SnackBarClassLauncher snackBarLauncher;
     private Handler handler;
     private Toolbar toolbar;
     ImageView LogoImage;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    boolean isInternetConnected;
     Bundle webServiceNewsApi=null;
     Bundle webServiceWebHose=null;
     String apiKey,token;
     NewsApiFragment newsApiFragment;
+    NoInternetFragment noInternetFragment;
     WebhoseApiFragment webhoseApiFragment;
     public static String POLITICS="Politics";
     public static String ARTS="arts";
@@ -92,29 +105,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private TextView EmailText;
     private TextView UserNameText;
     private ImageView ProfilePicView;
+    private int Activity_Num=0;
+    View view;
+    private String Urgent_KEY="urgent";
+//    RelativeLayout home_linear;
 
-
-    private boolean checkConnection() {
-        return isInternetConnected=isConnected();
-    }
-
-    public boolean isConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE); //NetworkApplication.getInstance().getApplicationContext()
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork!=null){
-            return isInternetConnected= activeNetwork.isConnected();
-        }else
-            return isInternetConnected=false;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        ButterKnife.bind(this);
         setContentView(R.layout.activity_home);
         setTheme(R.style.ArishTheme);
+//        home_linear=(RelativeLayout)findViewById(R.id.home_linear);
+        Config.ActivityNum=Activity_Num;
         apiKey= BuildConfig.ApiKey;
         token=BuildConfig.token;
         newsApiFragment=new NewsApiFragment();
+        noInternetFragment=new NoInternetFragment();
+        snackBarLauncher=new SnackBarClassLauncher();
         webhoseApiFragment=new WebhoseApiFragment();
         webServiceNewsApi=new Bundle();
         webServiceWebHose=new Bundle();
@@ -128,9 +137,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         EmailText=(TextView)header.findViewById(R.id.Email);
         UserNameText=(TextView)header.findViewById(R.id.UserName);
         ProfilePicView=(ImageView)header.findViewById(R.id.profile_image);
-
         final Bundle bundle=new Bundle();
-
         sessionManagement=new SessionManagement(getApplicationContext());
         user=sessionManagement.getUserDetails();
         if (user!=null){
@@ -268,15 +275,32 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
         //calling sync state is necessay or else your hamburger icon wont show up
         actionBarDrawerToggle.syncState();
+        SnackBasedConnection();
+    }
 
-        checkConnection();
-        if (isInternetConnected==true){
+    private void SnackBasedConnection() {
+        VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
+        verifyConnection.checkConnection();
+        if (verifyConnection.isConnected()){
             displayUrgent();
+        }else {
+            // Show Snack
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
+            Config.UrgentURL=UrgentURL;
+            Config.apiKey=apiKey;
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container_frame, noInternetFragment, "newsApi")
+                    .commit();
         }
     }
 
     private void displayUrgent() {
-        webServiceNewsApi.putString("urgent",UrgentURL+apiKey);
+        if (UrgentURL!=null&&apiKey!=null){
+            webServiceNewsApi.putString(Urgent_KEY,UrgentURL+apiKey);
+        }else {
+            webServiceNewsApi.putString(Urgent_KEY,Config.UrgentURL+Config.apiKey);
+        }
 //        webServiceNewsApi.putString("urgent",POLITICS_URL);
         newsApiFragment.setArguments(webServiceNewsApi);
         getSupportFragmentManager().beginTransaction()
@@ -307,5 +331,49 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             this.startActivity(intent);
         }
+    }
+
+    private Snackbar NetCut() {
+        return snackbar= Snackbar
+                .make(drawerLayout, getApplicationContext().getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG)
+                .setAction(getApplicationContext().getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        SnackBasedConnection();
+                    }
+                });
+
+    }
+
+    @Nullable
+    private static ViewGroup findSuitableParent(View view) {
+        ViewGroup fallback = null;
+        do {
+            if (view instanceof CoordinatorLayout) {
+                // We've found a CoordinatorLayout, use it
+                return (ViewGroup) view;
+            } else if (view instanceof FrameLayout) {
+                if (view.getId() == android.R.id.content) {
+                    // If we've hit the decor content view, then we didn't find a CoL in the
+                    // hierarchy, so use it.
+                    return (ViewGroup) view;
+                } else {
+                    // It's not the content view but we'll use it as our fallback
+                    fallback = (ViewGroup) view;
+                }
+            }
+            if (view != null) {
+                // Else, we will loop and crawl up the view hierarchy and try to find a parent
+                final ViewParent parent = view.getParent();
+                view = parent instanceof View ? (View) parent : null;
+            }
+        } while (view != null);
+        // If we reach here then we didn't find a CoL or a suitable content view so we'll fallback
+        return fallback;
+    }
+
+    @Override
+    public void ReloadInternetService() {
+        SnackBasedConnection();
     }
 }

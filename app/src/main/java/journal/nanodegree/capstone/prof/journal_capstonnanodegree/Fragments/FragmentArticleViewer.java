@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,8 +14,13 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
 import com.squareup.picasso.Picasso;
+
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.WebViewerActivity;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
 
 /**
  * Created by Prof-Mohamed Atef on 1/10/2019.
@@ -32,7 +38,7 @@ public class FragmentArticleViewer extends android.app.Fragment {
     public static String KEY_optionsEntity = "Options";
     private OptionsEntity optionsEntity;
     private TextView read_more;
-    private WebView webview;
+
 
     @Nullable
     @Override
@@ -45,7 +51,6 @@ public class FragmentArticleViewer extends android.app.Fragment {
         SourceName = (TextView) rootView.findViewById(R.id.source_name);
         Image = (ImageView) rootView.findViewById(R.id.image);
         linearLayout = (LinearLayout) rootView.findViewById(R.id.linearLayout);
-        webview=(WebView)rootView.findViewById(R.id.webview);
         return rootView;
     }
 
@@ -66,6 +71,11 @@ public class FragmentArticleViewer extends android.app.Fragment {
             if (bundle != null) {
                 optionsEntity = (OptionsEntity) bundle.getSerializable("twoPaneExtras");
                 DisplayData(optionsEntity);
+            }else {
+                if (Config.ArrArticle!=null&&Config.ArrArticle.size()>0) {
+                    OptionsEntity optionsEntity = Config.ArrArticle.get(0);
+                    DisplayData(optionsEntity);
+                }
             }
         }
     }
@@ -86,7 +96,12 @@ public class FragmentArticleViewer extends android.app.Fragment {
                         linearLayout.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                webview.loadUrl(optionsEntity.getURL());
+                                if (optionsEntity.getURL() != null) {
+                                    String url=optionsEntity.getURL();
+                                    Intent intent=new Intent(getActivity(),WebViewerActivity.class);
+                                    intent.putExtra(URL_KEY,url);
+                                    getActivity().startActivity(intent);
+                                }
                             }
                         });
                     }else {Date.setText("");}

@@ -12,6 +12,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.Arti
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentArticleViewer;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentSoundPlayer;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.ARTS;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.ArticleType;
@@ -49,16 +50,12 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     private String ArticleFrag_KEY="Article";
     Toolbar mToolbar;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    private int Activity_Num=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setTheme(R.style.ArticleTypesTheme);
         setContentView(R.layout.activity_article_types_list);
-//        if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
-//            mTwoPaneUi = true;
-//        }
-//        else {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         assert getSupportActionBar() != null;
@@ -70,17 +67,12 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
                 onBackPressed();
             }
         });
-//            mTwoPaneUi = false;
-//            mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swipe_refresh_layout);
-//            mSwipeRefreshLayout.setOnRefreshListener(this);
-//        }
-
-
-                if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
-                    mTwoPaneUi = true;
-                } else {
-                    mTwoPaneUi = false;
-                }
+        if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
+            mTwoPaneUi = true;
+        } else {
+            mTwoPaneUi = false;
+        }
+        Config.ActivityNum=Activity_Num;
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
         Bundle bundle=getIntent().getExtras();

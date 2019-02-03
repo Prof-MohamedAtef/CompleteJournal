@@ -18,6 +18,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.Urgent
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.WebHoseRecyclerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.NewsApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.WebHoseApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
@@ -47,6 +48,8 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
     private String KEY_UrgentArray="UrgentArr";
     private String MustImplementListener="must Implement OnSelectedArticleListener";
     private GridLayoutManager layoutManager;
+    private int FragmentNewsApiNum=11;
+    private int FragmentWebHoseApiNum=22;
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -110,6 +113,7 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+        Config.FragmentNewsApiNum=FragmentNewsApiNum;
     }
 
     private void PopulateUrgentArticles(ArrayList<OptionsEntity> urgentArticlesList) {
@@ -136,6 +140,7 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
         if (result!=null&&result.size()>0){
             PopulateTypesList(result);
             TypesArticlesList=result;
+            Config.ArrArticle=result;
         }
     }
 
@@ -143,12 +148,14 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
     public void onWebHoseTaskCompleted(ArrayList<OptionsEntity> result) {
         if (result!=null&&result.size()>0){
             TypesArticlesList=result;
+            Config.ArrArticle=result;
             WebHoseRecyclerAdapter mAdapter=new WebHoseRecyclerAdapter(getActivity(),result, TwoPane);
             mAdapter.notifyDataSetChanged();
             RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(mLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(mAdapter);
+            Config.FragmentWebHoseApiNum=FragmentWebHoseApiNum;
         }
     }
 

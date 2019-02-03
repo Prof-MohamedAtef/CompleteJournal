@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/coordinator_layout_twoPane"
@@ -10,14 +10,15 @@
     android:id="@+id/toolbar"
     android:layout_height="?actionBarSize"
     android:layout_gravity="bottom"
+        android:theme="@style/Theme.BackButtonTheme"
     android:layout_width="match_parent"
     app:layout_collapseMode="pin"
-        android:background="@color/primaryColor"
+        android:background="@color/primaryDarkColor"
     app:layout_scrollFlags="scroll|enterAlways|snap"
     app:popupTheme="@style/AppTheme.PopupOverlay"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="horizontal" android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/LinearMasterContainerTwoPane">
         <FrameLayout
             android:layout_width="0dp"
@@ -29,11 +30,12 @@
             android:layout_height="match_parent"
             android:background="@android:color/darker_gray"/>
         <LinearLayout
+            android:layout_margin="@dimen/top_margin"
             android:layout_width="0dp"
             android:layout_weight="3.5"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:background="#FFF"
+            android:background="@color/primaryColor"
             android:orientation="vertical">
             <FrameLayout
                 android:id="@+id/Audio_container"
@@ -41,6 +43,10 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.75"
                 android:scaleType="centerInside"></FrameLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/primaryColor"/>
             <FrameLayout
                 android:id="@+id/Article_container"
                 android:layout_width="match_parent"
@@ -54,7 +60,7 @@
 
 
 
-
+    <!--https://stackoverflow.com/questions/46242280/android-custom-back-button-with-text-->
 
 
 
