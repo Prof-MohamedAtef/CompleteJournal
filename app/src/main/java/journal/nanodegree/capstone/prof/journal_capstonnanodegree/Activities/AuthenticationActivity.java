@@ -12,10 +12,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -47,7 +49,11 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Listeners.SnackBarLauncher;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.SnackBarClassLauncher;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
@@ -55,7 +61,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Sessio
  * Created by Prof-Mohamed Atef on 12/31/2018.
  */
 
-public class AuthenticationActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
+public class AuthenticationActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, SnackBarLauncher{
 
     private ProgressDialog mProgressDialog;
     private FirebaseAuth mAuth;
@@ -63,6 +69,8 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
     SignInButton Gbtn_sign_in;
                        GoogleSignInAccount GAccessToken;
     CallbackManager callbackManager;
+    Snackbar snackbar;
+    SnackBarClassLauncher snackBarLauncher;
     String currentSignature;
     AccessTokenTracker accessTokenTracker;
     AccessToken FBaccessToken;
@@ -76,6 +84,8 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
     Uri PhotoUri;
     GoogleSignInOptions gso;
     private static final int RC_SIGN_IN = 007;
+    VerifyConnection verifyConnection;
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,9 +93,11 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_main);
-        checkConnection();
+        verifyConnection=new VerifyConnection(getApplicationContext());
+        snackBarLauncher=new SnackBarClassLauncher();
         sessionManagement=new SessionManagement(getApplicationContext());
-        if (isConnected()){
+        linearLayout=(LinearLayout)findViewById(R.id.linearLayout);
+        if (verifyConnection.isConnected()){
             mAuth=FirebaseAuth.getInstance();
             mAuthListener=new FirebaseAuth.AuthStateListener() {
                 @Override
@@ -180,24 +192,31 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
                 }
             });
             fbloginButton.setReadPermissions(Arrays.asList("public_profile"));
-        }else if(!isConnected()){
-            Toast.makeText(getApplicationContext(), "Connection Disabled", Toast.LENGTH_SHORT).show();
+        }else if(!verifyConnection.isConnected()){
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
         }
     }
 
-    boolean isInternetConnected;
+    private Snackbar NetCut() {
+        return snackbar= Snackbar
+                .make(linearLayout, getApplicationContext().getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG)
+                .setAction(getApplicationContext().getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        checkConnection();
+                    }
+                });
 
-    private boolean checkConnection() {
-        return isInternetConnected=isConnected();
     }
 
-    public boolean isConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE); //NetworkApplication.getInstance().getApplicationContext()/
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork!=null){
-            return isInternetConnected= activeNetwork.isConnected();
-        }else
-            return isInternetConnected=false;
+    private void checkConnection() {
+        if (verifyConnection.isConnected()){
+            snackBarLauncher.SnackBarLoadedData(linearLayout,getApplicationContext());
+        }else if(!verifyConnection.isConnected()){
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
+        }
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
@@ -245,7 +264,7 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
-        if (isConnected()){
+        if (verifyConnection.isConnected()){
             if (requestCode == RC_SIGN_IN) {
                 GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
                 if (result.isSuccess()) {
@@ -277,13 +296,16 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
                 UserDataRequest.setParameters(parameters);
                 UserDataRequest.executeAsync();
             }
-        }else  if (!isConnected()){
-            Toast.makeText(getApplicationContext(), "Connection Disabled", Toast.LENGTH_SHORT).show();
+        }else  if (!verifyConnection.isConnected()){
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
+//            Toast.makeText(getApplicationContext(), "Connection Disabled", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void SharedPrefAndDiaryEntryRedirectFBDetails() {
-        sessionManagement.createLoginSession(FB_UserName,FB_Email,FB_ProfilePic,FBaccessToken.toString(), FB_id);
+        String ActualAccessToken= FBaccessToken.getToken().toString();
+        sessionManagement.createLoginSession(FB_UserName,FB_Email,FB_ProfilePic,ActualAccessToken, FB_id);
         sessionManagement.createLoginSessionType("F");
         Intent intent_create=new Intent(this,HomeActivity.class);
         startActivity(intent_create);
@@ -334,7 +356,7 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
     @Override
     protected void onStart() {
         super.onStart();
-        if (isConnected()){
+        if (verifyConnection.isConnected()){
             if (mGoogleApiClient!=null){
                 OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
                 if (opr.isDone()) {
@@ -358,13 +380,20 @@ public class AuthenticationActivity extends AppCompatActivity implements GoogleA
                 }
             }
 
-        }else if (isInternetConnected==false){
-            Toast.makeText(getApplicationContext(), "Connection Disabled", Toast.LENGTH_SHORT).show();
+        }else if (!verifyConnection.isInternetConnected){
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
         }
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        checkConnection();
+    }
+
+
+    @Override
+    public void onNoInternetConnection() {
 
     }
 }

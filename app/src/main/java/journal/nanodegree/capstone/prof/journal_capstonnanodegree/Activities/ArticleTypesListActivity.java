@@ -1,18 +1,30 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentArticleViewer;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentSoundPlayer;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NoInternetFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseHelper;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.SnackBarClassLauncher;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.ARTS;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.ArticleType;
@@ -51,11 +63,26 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     Toolbar mToolbar;
     SwipeRefreshLayout mSwipeRefreshLayout;
     private int Activity_Num=1;
+    NoInternetFragment noInternetFragment;
+    @BindView(R.id.master_list_fragment)
+    FrameLayout master_list_fragment;
+    private boolean ContentProviderHasData;
+    FirebaseHelper firebaseHelper;
+    private DatabaseReference mDatabase;
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        firebaseHelper=new FirebaseHelper();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_types_list);
+        ButterKnife.bind(this);
+        noInternetFragment=new NoInternetFragment();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         assert getSupportActionBar() != null;
@@ -75,6 +102,10 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         Config.ActivityNum=Activity_Num;
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
+        if (mDatabase==null){
+            FirebaseDatabase database= FirebaseDatabase.getInstance();
+            mDatabase=database.getInstance().getReference();
+        }
         Bundle bundle=getIntent().getExtras();
         ArticleType_=bundle.getString(ArticleType);
         if (ArticleType_.equals(ARTS)){
@@ -88,9 +119,27 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             NewsApiVerifier=URL;
         }else if (ArticleType_.equals(REPORTS)){
             // get data from Content Provider of Firebase
+
         }else if (ArticleType_.equals(FOOD)){
             URL=WEBHOSE+token+"&format=json&ts=1543863885301&"+WEBHOSEDETAILS+"title%3A";
             WebHoseVerifier=URL;
+            VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
+            verifyConnection.checkConnection();
+            if (verifyConnection.isConnected()){
+                // get data from firebase
+
+            }else {
+                //if no data in content provider // redirect to add article activity
+                // Show Snack
+                ContentProviderHasData=false;
+                if (!ContentProviderHasData){
+                    snackbar=NetCut();
+                    snackBarLauncher.SnackBarInitializer(snackbar);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container_frame, noInternetFragment, "newsApi")
+                            .commit();
+                }
+            }
         }else if (ArticleType_.equals(FAMILY)){
             URL=WEBHOSE+token+"&format=json&ts=1545130799659&"+WEBHOSEDETAILS+"title%3A%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D8%A9";
             WebHoseVerifier=URL;
@@ -158,4 +207,35 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     public void onRefresh() {
         Toast.makeText(getApplicationContext(),getString(R.string.okay), Toast.LENGTH_LONG);
     }
+
+    private Snackbar NetCut() {
+        return snackbar= Snackbar
+                .make(master_list_fragment, getApplicationContext().getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG)
+                .setAction(getApplicationContext().getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        SnackBasedConnection();
+                    }
+                });
+
+    }
+
+    private void SnackBasedConnection() {
+        VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
+        verifyConnection.checkConnection();
+        if (verifyConnection.isConnected()){
+            // get fata from firebase
+        }else {
+            //if no data in content provider
+            // Show Snack
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container_frame, noInternetFragment, "newsApi")
+                    .commit();
+        }
+    }
+
+    Snackbar snackbar;
+    SnackBarClassLauncher snackBarLauncher;
 }

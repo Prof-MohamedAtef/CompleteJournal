@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "814800557452-k3dppvb5t4m8l447cli9eejav73hftuc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "journal.nanodegree.capstone.prof.journal_capstonnanodegree",
+            "certificate_hash": "9b5b2f291e6d6ce1126e85e3efcd66486355eba2"
+          }
+        },
+        {
           "client_id": "814800557452-4vam39a40iiqu67c7k34nakn0d8buqlr.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814800557452-4vam39a40iiqu67c7k34nakn0d8buqlr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

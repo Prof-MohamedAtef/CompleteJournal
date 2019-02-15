@@ -6,8 +6,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import java.util.HashMap;
-
-import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.HomeActivity2;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
@@ -24,21 +22,21 @@ public class SplashActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {hideProgressDialog();
-                    startActivity(new Intent(SplashActivity.this, HomeActivity2.class));
+                    startActivity(new Intent(SplashActivity.this, HomeActivity.class));
                     finish();
                 }
             },5500);
         }
-//        else {
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
-//                    hideProgressDialog();
-//                    finish();
-//                }
-//            },5500);
-//        }
+        else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
+                    hideProgressDialog();
+                    finish();
+                }
+            },5500);
+        }
     }
 
     @Override

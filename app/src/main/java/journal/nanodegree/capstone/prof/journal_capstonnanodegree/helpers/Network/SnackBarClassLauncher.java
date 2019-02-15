@@ -14,6 +14,8 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config
  */
 
 public class SnackBarClassLauncher {
+    private Snackbar snackbar;
+
     public void SnackBarInitializer(Snackbar snackbar) {
         ShowSnackMessage(snackbar);
     }
@@ -28,7 +30,9 @@ public class SnackBarClassLauncher {
         snackbar.show();
     }
 
-    public void SnackBarLoadedData(Snackbar snackbar) {
+    public void SnackBarLoadedData(View view, Context mContext) {
+        snackbar = Snackbar
+                .make(view, mContext.getResources().getString(R.string.loadedsuccess), Snackbar.LENGTH_LONG);
         ShowSnackMessage(snackbar);
     }
 

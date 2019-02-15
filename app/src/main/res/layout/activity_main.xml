@@ -10,6 +10,7 @@
     tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.AuthenticationActivity"
     android:orientation="vertical">
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:gravity="center_horizontal|center_vertical"
         android:orientation="horizontal"
         android:layout_width="match_parent"

@@ -1,5 +1,7 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers;
 
+import android.net.Uri;
+
 import com.facebook.AccessToken;
 
 import java.io.Serializable;
@@ -15,8 +17,51 @@ public class OptionsEntity implements Serializable{
     public static String TITLEFULL;
     String ID;
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
+    Uri ImageFileUri;
+
+    public Uri getImageFileUri() {
+        return ImageFileUri;
+    }
+
+    public void setImageFileUri(Uri imageFileUri) {
+        ImageFileUri = imageFileUri;
+    }
+
     String AudioFile;
     String AUTHOR_PHOTO;
+    String Category_ID, API_TOKEN;
+
+    public OptionsEntity(String title_str, String description_str, String category_id_str, String api_token_str, Uri image_str) {
+        this.TITLE=title_str;
+        this.DESCRIPTION=description_str;
+        this.Category_ID=category_id_str;
+        this.API_TOKEN=api_token_str;
+        this.ImageFileUri=image_str;
+    }
+
+    public OptionsEntity(String title_str, String description_str, String category_id_str, String api_token_str, String image_str) {
+        this.TITLE=title_str;
+        this.DESCRIPTION=description_str;
+        this.Category_ID=category_id_str;
+        this.API_TOKEN=api_token_str;
+        this.URLTOIMAGE=image_str;
+    }
+
+    public String getCategoryName() {
+        return CategoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        CategoryName = categoryName;
+    }
+
+    String CategoryName;
+
+    public OptionsEntity(String id_str, String categoryName_str) {
+        this.ID=id_str;
+        this.CategoryName=categoryName_str;
+    }
+
     public String getAudioFile() {
         return AudioFile;
     }

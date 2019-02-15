@@ -69,12 +69,6 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent">
-                        <ImageView
-                            android:id="@+id/ImagePost"
-                            android:layout_gravity="right"
-                            android:src="@drawable/post"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp" />
                     </LinearLayout>
                 </LinearLayout>
                 <LinearLayout
@@ -128,6 +122,20 @@
         android:orientation="vertical"
         android:background="#fff"
         android:weightSum="6">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_weight="0.6"
+            android:gravity="right"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:focusable="true"
+                android:clickable="true"
+                android:id="@+id/ImagePost"
+                android:layout_gravity="right"
+                android:src="@drawable/post_3"
+                android:layout_width="45dp"
+                android:layout_height="45dp" />
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

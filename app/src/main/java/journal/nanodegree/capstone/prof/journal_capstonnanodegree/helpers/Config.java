@@ -36,6 +36,8 @@ public class Config {
     public static int FragmentWebHoseApiNum;
     public static String UrgentURL;
     public static String apiKey;
+    public static ArrayList<OptionsEntity> CategoriesList;
+    public static int Category_id;
 
 
     static {

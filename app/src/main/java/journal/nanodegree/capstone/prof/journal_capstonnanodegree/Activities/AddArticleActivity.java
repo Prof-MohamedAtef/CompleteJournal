@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,6 +17,8 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
@@ -28,7 +31,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Chronometer;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -36,6 +38,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -45,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,12 +66,24 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.CustomSpinnerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseDataHolder;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseHelper;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseImageHelper;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.CategoryAsyncTask;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.InsertArticleAsyncTask;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.SnackBarClassLauncher;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config.Category_id;
 
-public class AddArticleActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddArticleActivity extends AppCompatActivity implements View.OnClickListener,
+CategoryAsyncTask.OnCategoriesCompleted,
+        InsertArticleAsyncTask.OnUploadCompleted{
 
+    private final String LOG_TAG = AddArticleActivity.class.getSimpleName();
     /*
     appBarr
      */
@@ -117,8 +143,6 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     ImageView ImageReport;
     @BindView(R.id.DateTime)
     TextView DateTime;
-    @BindView(R.id.ImagePost)
-    ImageView ImagePost;
     @BindView(R.id.txt_ReportDescription)
     EditText txt_ReportDescription;
     @BindView(R.id.txt_ReportTitle)
@@ -127,6 +151,10 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     TextView UserNameText;
     @BindView(R.id.ProfileImage_header_Post)
     CircleImageView ProfilePicView;
+    @BindView(R.id.ImagePost)
+    ImageView ImagePost;
+    @BindView(R.id.draw_insets_frame_layout)
+    CoordinatorLayout draw_insets_frame_layout;
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 55;
     private String IMAGE_TYPE="image/*";
@@ -169,7 +197,44 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     private String LoggedUserName;
     private String LoggedProfilePic;
     private String TokenID;
+    SnackBarClassLauncher snackBarLauncher;
+    Snackbar snackbar;
+    private String Categories_URL="http://fla4news.com/news/api/v1/categories";
+    private String POSTED_ARTICLE="PostedArticle";
 
+    private DatabaseReference mDatabase;
+    FirebaseHelper firebaseHelper;
+    FirebaseStorage storage;
+    StorageReference storageReference;
+    private Uri ImageFileUri;
+    private static boolean HasDataUploaded=false;
+    private static boolean ImageHasUploaded=false;
+
+    private void InsertIntoFirebaseDatabase(FirebaseDataHolder firebaseDataHolder) {
+        String ArticleID=mDatabase.push().getKey();
+        mDatabase.child(ArticleID).setValue(firebaseDataHolder);
+        UserChangeListener(ArticleID);
+    }
+
+    private void UserChangeListener(final String articleID) {
+
+        mDatabase.child(articleID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                FirebaseDataHolder firebaseDataHolder =dataSnapshot.getValue(FirebaseDataHolder.class);
+                if (firebaseDataHolder ==null){
+                    Log.e(LOG_TAG, "User data is null!");
+                    return;
+                }
+                Log.e(LOG_TAG, "options data is changed!" + firebaseDataHolder.getTITLE()+ ", " + firebaseDataHolder.getDESCRIPTION() );
+                HasDataUploaded=true;
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(LOG_TAG, "Failed to read options", databaseError.toException());
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,7 +245,40 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             getPermissionToRecordAudio();
         }
-        ButterKnife.bind(this);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        if (mDatabase==null){
+            FirebaseDatabase database= FirebaseDatabase.getInstance();
+            mDatabase=database.getReference("data");
+            mDatabase.keepSynced(true);
+        }
+        if (storage==null){
+            storage = FirebaseStorage.getInstance();
+            storageReference = storage.getReference();
+        }
+        ImagePost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Title= txt_ReportTitle.getText().toString();
+                Description=txt_ReportDescription.getText().toString();
+
+                    Date_STR = Now.toString();
+                    user = sessionManagement.getUserDetails();
+                    if (user != null) {
+                        LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
+                        TokenID=user.get(SessionManagement.KEY_idToken);
+                    }
+                    if (Title != null && Description != null && Category != null && ImageFileUri != null && LoggedEmail != null&&TokenID!=null) {//username/userID
+                        // upload 2 server
+//                        AddArticleToServer();
+//                        OptionsEntity optionsEntity=new OptionsEntity(Title, Description, String.valueOf(Category_id), TokenID,ImageFileUri);
+                        String Image =ImageFileUri.toString();
+                        FirebaseDataHolder firebaseDataHolder =new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail,Image, TokenID);
+                        FirebaseImageHelper firebaseImageHelper=new FirebaseImageHelper(ImageFileUri);
+                        AddArticleToFirebase(firebaseDataHolder, firebaseImageHelper);
+//                    }
+                }
+            }
+        });
         imageViewRecord.setOnClickListener(this);
         imageViewStop.setOnClickListener(this);
         imageViewPlay.setOnClickListener(this);
@@ -201,71 +299,30 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         Categories_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // environmental position will show tags
-                Category=Categories_spinner.getSelectedItem().toString();
+//                Category=Categories_spinner.getSelectedItem().toString();
+                Category= Config.CategoriesList.get(position).getCategoryName();
+                Category_id=position;
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        connectToApi();
 
+//        ArrayList<String> PostTypes = new ArrayList<String>();
+//        PostTypes.add(SELECT_CATEGORY);
+//        PostTypes.add(URGENT_KEY);
+//        PostTypes.add(POLITICS_KEY);
+//        PostTypes.add(ART_CULTURE_KEY);
+//        PostTypes.add(SPORTS);
+//        PostTypes.add(REPORTS_KEY);
+//        PostTypes.add(TECHNOLOGY_KEY);
+//        PostTypes.add(BUSINESS_KEY);
+//        PostTypes.add(FOOD_KEY);
+//        PostTypes.add(FAMILY_KEY);
+//        PostTypes.add(HERITAGE_KEY);
+//        PostTypes.add(OPINIONS_KEY);
 
-
-        ArrayList<String> PostTypes = new ArrayList<String>();
-        PostTypes.add(SELECT_CATEGORY);
-        PostTypes.add(URGENT_KEY);
-        PostTypes.add(POLITICS_KEY);
-        PostTypes.add(ART_CULTURE_KEY);
-        PostTypes.add(SPORTS);
-        PostTypes.add(REPORTS_KEY);
-        PostTypes.add(TECHNOLOGY_KEY);
-        PostTypes.add(BUSINESS_KEY);
-        PostTypes.add(FOOD_KEY);
-        PostTypes.add(FAMILY_KEY);
-        PostTypes.add(HERITAGE_KEY);
-        PostTypes.add(OPINIONS_KEY);
-        CustomSpinnerAdapter customSpinnerAdapterPostType = new CustomSpinnerAdapter(getApplicationContext(), PostTypes);
-        Categories_spinner.setAdapter(customSpinnerAdapterPostType);
-                 calendar = new Calendar() {
-                    @Override
-                    protected void computeTime() {
-                    }
-
-                    @Override
-                    protected void computeFields() {
-
-                    }
-
-                    @Override
-                    public void add(int field, int amount) {
-
-                    }
-
-                    @Override
-                    public void roll(int field, boolean up) {
-
-                    }
-
-                    @Override
-                    public int getMinimum(int field) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getMaximum(int field) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getGreatestMinimum(int field) {
-                        return 0;
-                    }
-
-                    @Override
-                    public int getLeastMaximum(int field) {
-                        return 0;
-                    }
-                };
         Camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -291,6 +348,31 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                         .into(ProfilePicView);
             }
         }
+    }
+
+    private void connectToApi() {
+        VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
+        verifyConnection.checkConnection();
+        if (verifyConnection.isConnected()){
+            CategoryAsyncTask categoryAsyncTask=new CategoryAsyncTask(this, getApplicationContext());
+            categoryAsyncTask.execute(Categories_URL);
+        }else {
+            // Show Snack
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
+        }
+    }
+
+    private Snackbar NetCut() {
+        return snackbar= Snackbar
+                .make(draw_insets_frame_layout, getApplicationContext().getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG)
+                .setAction(getApplicationContext().getResources().getString(R.string.retry), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        connectToApi();
+                    }
+                });
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -389,6 +471,12 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         Toast.makeText(this, getString(R.string.recording_saved_successfully), Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseHelper=new FirebaseHelper();
+    }
+
     private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
@@ -485,6 +573,8 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                     MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
+                imageFileName= data.getData().getPath();
+                ImageFileUri =data.getData();
                 imageBitmap = (Bitmap) extras.get(DATA_KEY);
                 setBitmapToImageView(imageBitmap);
                 try{
@@ -497,6 +587,8 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
             else if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
                 if (data != null) {
                     Bundle selectedImage = data.getExtras();
+                    ImageFileUri=data.getData();
+                    imageFileName=data.getData().getPath();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                     String filePath =  MediaStore.Images.Media.DATA ;
                     Bitmap  imagebitmap=(Bitmap)selectedImage.get(DATA_KEY);
@@ -518,17 +610,24 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                 }
             }else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK) {
                 selectedImage = data.getData();
+                fileName= selectedImage.getPath();
+                ImageFileUri =data.getData();
+                imageFileName=data.getData().getPath();
                 filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                 imageBitmap= LoadThenDecodeBitmap();
                 setBitmapToImageView(imageBitmap);
             }else if (requestCode == SELECT_PICTURE && resultCode == RESULT_OK){
                 selectedImage = data.getData();
+                imageFileName=data.getData().getPath();
+                ImageFileUri =data.getData();
                 filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                 if (selectedImage!=null){
                     imageBitmap= LoadThenDecodeBitmap();
                     setBitmapToImageView(imageBitmap);
                 }else {
                     Bundle selectedImage = data.getExtras();
+                    imageFileName=data.getData().getPath();
+                    ImageFileUri =data.getData();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                     imageBitmap=(Bitmap)selectedImage.get(DATA_KEY);
                     Config.imageBitmap=imageBitmap.toString();
@@ -553,29 +652,83 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         super.onResume();
         Now= Calendar.getInstance().getTime();
         DateTime.setText(Now.toString());
-        year = calendar.get(Calendar.YEAR);
-        month = calendar.get(Calendar.MONTH);
-        day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        ImagePost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Title= txt_ReportTitle.getText().toString();
-                Description=txt_ReportDescription.getText().toString();
-                Category=Categories_spinner.getSelectedItem().toString();
-                Date_STR=Now.toString();
-
-                user=sessionManagement.getUserDetails();
-
-                if (user!=null) {
-                    TokenID = user.get(SessionManagement.KEY_idToken);
-                }
-                    if (Title!=null&&Description!=null&&Category!=null&&Date_STR!=null&&imageBitmap!=null&&fileName!=null&&TokenID!=null) {//username/userID
-                    // upload 2 server
-                }
-            }
-        });
+//        year = calendar.get(Calendar.YEAR);
+//        month = calendar.get(Calendar.MONTH);
+//        day = calendar.get(Calendar.DAY_OF_MONTH);
     }
+
+    private void AddArticleToFirebase(FirebaseDataHolder firebaseDataHolder, FirebaseImageHelper firebaseImageHelper) {
+        VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
+        verifyConnection.checkConnection();
+        if (verifyConnection.isConnected()){
+            InsertIntoFirebaseDatabase(firebaseDataHolder);
+            UploadFileToFirebase(firebaseImageHelper);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (HasDataUploaded&&ImageHasUploaded){
+                        InsertThenNavigate();// save using content provider
+                    }
+                }
+            },1500);
+        }else {
+            // Show Snack
+            snackbar=NetCut();
+            snackBarLauncher.SnackBarInitializer(snackbar);
+        }
+    }
+
+    private void UploadFileToFirebase(FirebaseImageHelper firebaseImageHelper) {
+        Uri Image= firebaseImageHelper.getImageFileUri();
+//        Uri Image=null;
+        if (Image!=null){
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle(getResources().getString(R.string.uploading));
+            progressDialog.show();
+            StorageReference reference=storageReference.child(IMAGE_TYPE+"/"+ UUID.randomUUID().toString());
+            reference.putFile(Image)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
+                            ImageHasUploaded=true;
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage(getResources().getString(R.string.uploaded)+(int)progress+getResources().getString(R.string.percent));
+                        }
+                    });
+        }
+    }
+
+    private void InsertThenNavigate() {
+//        boolean Inserted=DB.InsertToDiary("",Now.toString(),Thoughts_Str,Status_ImageUrl,Status_Str, LoggedEmail);
+//        if (Inserted){
+//            Intent intent_create=new Intent(this,DiaryActivity.class);
+//            startActivity(intent_create);
+//        }
+    }
+
+
+//    private void AddArticleToServer() {
+//        try {
+//            InsertArticleAsyncTask insertArticleAsyncTask = new InsertArticleAsyncTask(this, getApplicationContext(),Title, Description, String.valueOf(Category_id), imageBitmap, TokenID);
+//            insertArticleAsyncTask.execute();
+//        } catch (Exception e) {
+//        }
+//    }
 
     private Bitmap LoadThenDecodeBitmap(){
         Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
@@ -700,14 +853,75 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         }else if (v==imageViewStop) {
             prepareforStop();
             stopRecording();
-        }else if (v==imageViewPlay){
-            if (!isPlaying&&fileName!=null){
-                isPlaying=true;
+        }else if (v==imageViewPlay) {
+            if (!isPlaying && fileName != null) {
+                isPlaying = true;
                 startPlaying();
-            }else {
-                isPlaying=false;
+            } else {
+                isPlaying = false;
                 stopPlaying();
             }
+        }
+    }
+
+    @Override
+    public void onCategoriesCompleted(ArrayList<OptionsEntity> result) {
+        if (result!=null){
+            Config.CategoriesList=result;
+            CustomSpinnerAdapter customSpinnerAdapterPostType = new CustomSpinnerAdapter(getApplicationContext(), result);
+            Categories_spinner.setAdapter(customSpinnerAdapterPostType);
+            calendar = new Calendar() {
+                @Override
+                protected void computeTime() {
+                }
+
+                @Override
+                protected void computeFields() {
+
+                }
+
+                @Override
+                public void add(int field, int amount) {
+
+                }
+
+                @Override
+                public void roll(int field, boolean up) {
+
+                }
+
+                @Override
+                public int getMinimum(int field) {
+                    return 0;
+                }
+
+                @Override
+                public int getMaximum(int field) {
+                    return 0;
+                }
+
+                @Override
+                public int getGreatestMinimum(int field) {
+                    return 0;
+                }
+
+                @Override
+                public int getLeastMaximum(int field) {
+                    return 0;
+                }
+            };
+        }
+    }
+
+    @Override
+    public void onUploadTaskCompleted(ArrayList<OptionsEntity> result) {
+        if (result!=null){
+            Intent intent_PostedPost= new Intent(getApplicationContext(), HomeActivity.class);
+            Bundle b = new Bundle();
+            b.putSerializable(POSTED_ARTICLE, result);
+            intent_PostedPost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent_PostedPost.putExtras(b);
+            startActivity(intent_PostedPost);
         }
     }
 }

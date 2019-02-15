@@ -106,8 +106,7 @@ ArticlesMasterListFragment.OnSelectedArticleListener, SnackBarLauncher {
             recyclerView.setLayoutManager(mLayoutManager);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(mAdapter);
-            snackbar = NetConnected();
-            snackBarLauncher.SnackBarLoadedData(snackbar);
+            snackBarLauncher.SnackBarLoadedData(LinearUiIdentifier,getActivity());
             String UrgentTextLines;
             String UrgentOneLine = null;
             for (OptionsEntity x : result){
@@ -119,11 +118,7 @@ ArticlesMasterListFragment.OnSelectedArticleListener, SnackBarLauncher {
         }
     }
 
-    @NonNull
-    private Snackbar NetConnected() {
-        return Snackbar
-                .make(LinearUiIdentifier, getActivity().getResources().getString(R.string.loadedsuccess), Snackbar.LENGTH_LONG);
-    }
+
 
     @Override
     public void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {
