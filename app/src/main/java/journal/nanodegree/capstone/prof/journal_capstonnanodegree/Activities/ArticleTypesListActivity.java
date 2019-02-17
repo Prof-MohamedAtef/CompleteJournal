@@ -79,6 +79,13 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     private DatabaseReference mDatabase;
     ArrayList<OptionsEntity> FirebaseArticlesList;
     private String KEY;
+    private String Category_STR;
+    private String Description_STR;
+    private String ImageFile_STR;
+    private String Title_STR;
+    private String Email_STR;
+    private ArrayList<OptionsEntity> Diarylist;
+    private String ArticlesList_KEY="ArticlesList_KEY";
 
 
     @Override
@@ -129,11 +136,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             URL=NEWSAPI+"sports&apiKey="+apiKey;
             NewsApiVerifier=URL;
         }else if (ArticleType_.equals(REPORTS)){
-            // get data from Content Provider of Firebase
-
-        }else if (ArticleType_.equals(FOOD)){
-            URL=WEBHOSE+token+"&format=json&ts=1543863885301&"+WEBHOSEDETAILS+"title%3A";
-            WebHoseVerifier=URL;
+            // get data from Content Provider or Firebase
             VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
             verifyConnection.checkConnection();
             if (verifyConnection.isConnected()){
@@ -151,6 +154,9 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
                             .commit();
                 }
             }
+        }else if (ArticleType_.equals(FOOD)){
+            URL=WEBHOSE+token+"&format=json&ts=1543863885301&"+WEBHOSEDETAILS+"title%3A";
+            WebHoseVerifier=URL;
         }else if (ArticleType_.equals(FAMILY)){
             URL=WEBHOSE+token+"&format=json&ts=1545130799659&"+WEBHOSEDETAILS+"title%3A%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D8%A9";
             WebHoseVerifier=URL;
@@ -167,11 +173,16 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             URL=NEWSAPI+"business&apiKey="+apiKey;
             NewsApiVerifier=URL;
         }
+
+        Diarylist= new ArrayList<>();
         Bundle bundle2=new Bundle();
         bundle2.putString(URL_KEY,URL);
         bundle2.putString(NEWSAPI_KEY,NewsApiVerifier);
         bundle2.putString(WebHoseAPIKEY,WebHoseVerifier);
         bundle2.putBoolean(TwoPANEExtras_KEY,mTwoPaneUi);
+        if (Diarylist.size()>0){
+            bundle2.putSerializable(ArticlesList_KEY,Diarylist);
+        }
         ArticlesMasterListFragment articlesMasterListFragment= new ArticlesMasterListFragment();
         articlesMasterListFragment.setArguments(bundle2);
         getFragmentManager().beginTransaction()
@@ -195,19 +206,18 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 FirebaseArticlesList.clear();
-//                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-//                    KEY=ds.getKey();
-//                    email = ds.child("email").getValue(String.class);
-//                    status_imgUrl = ds.child("status_ImgUrl").getValue(String.class);
-//                    status_str= ds.child("status_Str").getValue(String.class);
-//                    thoughtDate= ds.child("thoughtDate").getValue(String.class);
-//                    thought_str= ds.child("thought_Str").getValue(String.class);
-//                    Log.d("TAG", email+ " / " + status_imgUrl+ " / " + status_str+ " / " + thoughtDate+ " / " + thought_str);
-//
-//                    optionsEntity=new OptionsEntity(key2, email, status_imgUrl,status_str,thoughtDate,thought_str);
-//                    Diarylist.add(optionsEntity);
-//
-//                }
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    KEY=ds.getKey();
+                    Category_STR = ds.child("categoryID").getValue(String.class);
+                    Description_STR = ds.child("description").getValue(String.class);
+                    ImageFile_STR= ds.child("imageFileUri").getValue(String.class);
+                    Title_STR= ds.child("title").getValue(String.class);
+                    Email_STR= ds.child("userEmail").getValue(String.class);
+                    Log.d("TAG", Email_STR+ " / " + Category_STR+ " / " + Description_STR+ " / " + ImageFile_STR+ " / " + Title_STR);
+
+                    optionsEntity=new OptionsEntity(KEY, Email_STR, Category_STR,Title_STR,ImageFile_STR,Description_STR);
+                    Diarylist.add(optionsEntity);
+                }
 
 
 

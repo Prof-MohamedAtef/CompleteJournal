@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <!-- <uses-permission android:name="android.permission.CAMERA" /> -->
     <application
         android:allowBackup="true"
@@ -24,7 +25,7 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".Activities.HomeActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"></activity>
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".Activities.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -65,11 +66,6 @@
             android:value="@string/facebook_app_id" />
 
         <activity
-            android:name=".Activities.AddArticleActivity"
-            android:parentActivityName=".Activities.HomeActivity"
-            android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
             android:name=".Activities.ArticleDetailsActivity"
             android:parentActivityName=".Activities.ArticleTypesListActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
@@ -94,7 +90,12 @@
             android:enabled="true" />
 
         <activity android:name=".Activities.WebViewerActivity" />
-        <activity android:name=".Activities.PublishArticleActivity"></activity>
+        <activity
+            android:name=".Activities.PublishArticleActivity"
+            android:parentActivityName=".Activities.HomeActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".Activities.AddArticleActivity" />
+        <activity android:name=".Activities.PostToNewsFeedActivity"></activity>
     </application>
 
 </manifest>

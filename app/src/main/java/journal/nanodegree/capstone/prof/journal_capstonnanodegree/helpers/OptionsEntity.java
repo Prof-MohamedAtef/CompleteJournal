@@ -19,6 +19,34 @@ public class OptionsEntity implements Serializable{
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
     Uri ImageFileUri;
 
+
+    String ArticleID, Email;
+
+    public String getArticleID() {
+        return ArticleID;
+    }
+
+    public void setArticleID(String articleID) {
+        ArticleID = articleID;
+    }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String email) {
+        Email = email;
+    }
+
+    public OptionsEntity(String articleID, String email, String category, String title, String image_file, String description){
+        this.ArticleID=articleID;
+        this.Email=email;
+        this.CategoryName=category;
+        this.TITLE=title;
+        this.URLTOIMAGE=image_file;
+        this.DESCRIPTION=description;
+    }
+
     public Uri getImageFileUri() {
         return ImageFileUri;
     }

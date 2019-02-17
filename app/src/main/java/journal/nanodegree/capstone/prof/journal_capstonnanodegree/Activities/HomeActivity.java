@@ -166,7 +166,7 @@ NoInternetFragment.onReloadInternetServiceListener{
                 drawerLayout.closeDrawers();
                 switch (menuItem.getItemId()){
                     case R.id.publish:
-                        Intent intent=new Intent(getApplicationContext(),PublishArticleActivity.class);
+                        Intent intent=new Intent(getApplicationContext(),PostToNewsFeedActivity.class);
                         startActivity(intent);
                         return true;
                     case R.id.urgent:

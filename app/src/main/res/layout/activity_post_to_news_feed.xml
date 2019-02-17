@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/draw_insets_frame_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/icons"
-    android:autoMirrored="true"
-    tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.AddArticleActivity">
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/draw_insets_frame_layout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/icons"
+android:autoMirrored="true"
+    tools:context="journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.PostToNewsFeedActivity">
 <android.support.design.widget.AppBarLayout
     android:id="@+id/appbar"
     app:elevation="@dimen/appbar_elevation"
@@ -65,11 +65,10 @@
                     </LinearLayout>
                     <LinearLayout
                         android:layout_margin="@dimen/top_margin"
-                        android:gravity="end"
+                        android:gravity="right"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent">
-
                     </LinearLayout>
                 </LinearLayout>
                 <LinearLayout
@@ -109,9 +108,7 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:layout_collapseMode="pin"/>
     </android.support.design.widget.CollapsingToolbarLayout>
-
 </android.support.design.widget.AppBarLayout>
-
 <android.support.v4.widget.NestedScrollView
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
@@ -128,13 +125,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_weight="0.6"
-            android:gravity="end"
+            android:gravity="right"
             android:layout_height="wrap_content">
             <ImageView
                 android:focusable="true"
                 android:clickable="true"
                 android:id="@+id/ImagePost"
-                android:layout_gravity="end"
+                android:layout_gravity="right"
                 android:src="@drawable/post_3"
                 android:layout_width="45dp"
                 android:layout_height="45dp" />
@@ -143,36 +140,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.4">
-                <LinearLayout
-                    android:orientation="vertical"
+            <LinearLayout
+                android:orientation="vertical"
+                android:gravity="center_horizontal|center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:layout_margin="@dimen/top_margin"
+                    android:id="@+id/category_title"
+                    android:textColor="@color/primaryLightColor"
+                    android:textSize="22sp"
+                    android:layout_gravity="center"
+                    android:textStyle="bold"
                     android:gravity="center_horizontal|center_vertical"
-                    android:layout_width="0dp"
+                    android:text="@string/category"
+                    android:layout_width="match_parent"
                     android:layout_weight="1"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:layout_margin="@dimen/top_margin"
-                        android:id="@+id/category_title"
-                        android:textColor="@color/primaryLightColor"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:textStyle="bold"
-                        android:gravity="center_horizontal|center_vertical"
-                        android:text="@string/category"
-                        android:layout_width="match_parent"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content" />
-                    <Spinner
-                        android:layout_margin="@dimen/top_margin"
-                        android:background="#000000"
-                        android:layout_marginStart="3dp"
-                        android:id="@+id/Categories_spinner"
-                        android:textStyle="bold"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-                </LinearLayout>
+                    android:layout_height="wrap_content" />
+                <Spinner
+                    android:layout_margin="@dimen/top_margin"
+                    android:background="#000000"
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/Categories_spinner"
+                    android:textStyle="bold"
+                    android:textSize="22sp"
+                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout
             android:layout_marginTop="@dimen/top_margin"
@@ -225,8 +221,8 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
             android:background="#dcdcdc" />
         <LinearLayout
             android:id="@+id/linearLayoutRecorder"
@@ -293,8 +289,8 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
             android:background="#dcdcdc" />
         <LinearLayout
             android:id="@+id/camera_Linear_posts_addpostactivity"

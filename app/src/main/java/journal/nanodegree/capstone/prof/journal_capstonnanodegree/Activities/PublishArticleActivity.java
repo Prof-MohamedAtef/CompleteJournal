@@ -1,6 +1,5 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
-import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -85,7 +84,7 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
         CategoryAsyncTask.OnCategoriesCompleted,
         InsertArticleAsyncTask.OnUploadCompleted{
 
-    private final String LOG_TAG = AddArticleActivity.class.getSimpleName();
+    private final String LOG_TAG = PublishArticleActivity.class.getSimpleName();
     /*
     appBarr
      */
@@ -122,7 +121,7 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
 
     private MediaRecorder mRecorder;
     private MediaPlayer mPlayer;
-    private String AudioFileName = null;
+    private String AudioFilePath = null;
     private int lastProgress = 0;
     private Handler mHandler = new Handler();
     private boolean isPlaying = false;
@@ -138,6 +137,7 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
     private int month;
     private int day;
     String imageFileName;
+    File fileNaming;
     String currentImagePAth;
     @BindView(R.id.camera)
     ImageView Camera;
@@ -213,6 +213,11 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
     private static boolean ImageHasUploaded=false;
     private String FileName_KEY="filename";
     private String AUDIO_TYPE="Voice/*";
+    private String imageName;
+    private FirebaseAudioHelper firebaseAudioHelper;
+    private FirebaseDataHolder firebaseDataHolder;
+    private FirebaseImageHelper firebaseImageHelper;
+    private String AudioFileName;
 
     private void InsertIntoFirebaseDatabase(FirebaseDataHolder firebaseDataHolder) {
         String ArticleID=mDatabase.push().getKey();
@@ -272,15 +277,17 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
                     TokenID=user.get(SessionManagement.KEY_idToken);
                     LoggedUserName=user.get(SessionManagement.KEY_EMAIL);
                 }
-                if (Title != null && Description != null && Category != null &&Date_STR!=null&& ImageFileUri != null && LoggedEmail != null&&TokenID!=null&&LoggedUserName!=null) {//username/userID
-                    String Image = ImageFileUri.toString();
-                    FirebaseDataHolder firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, Image, TokenID, Date_STR, LoggedUserName);
-                    FirebaseImageHelper firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
-                    FirebaseAudioHelper firebaseAudioHelper=null;
-                    if (AudioFileName!=null){
-                        Uri Audio_uri=Uri.fromFile(new File(AudioFileName));
-//                        firebaseAudioHelper=new FirebaseAudioHelper(Uri.parse(AudioFileName));
+                if (Title != null && Description != null && Category != null &&Date_STR!=null&& ImageFileUri != null && imageName!=null&& LoggedEmail != null&&TokenID!=null&&LoggedUserName!=null) {//username/userID
+                    if (AudioFilePath !=null){
+                        Uri Audio_uri=Uri.fromFile(new File(AudioFilePath));
+                        File AudioNaming=new File(AudioFilePath);
+                        AudioFileName= AudioNaming.getName();
                         firebaseAudioHelper=new FirebaseAudioHelper(Audio_uri);
+//                        firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, imageName, ImageFileUri, AudioFileName, TokenID, Date_STR, LoggedUserName);
+                        firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
+                    }else {
+//                        firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, imageName, ImageFileUri, TokenID, Date_STR, LoggedUserName);
+                        firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
                     }
                     AddArticleToFirebase(firebaseDataHolder, firebaseImageHelper, firebaseAudioHelper);
                 }
@@ -468,10 +475,10 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
         if (!file.exists()) {
             file.mkdirs();
         }
-        AudioFileName =  root.getAbsolutePath()
+        AudioFilePath =  root.getAbsolutePath()
                 + "/VoiceRecorderSimplifiedCoding/Audios/" + String.valueOf(System.currentTimeMillis() + ".mp3");
-        Log.d(FileName_KEY, AudioFileName);
-        mRecorder.setOutputFile(AudioFileName);
+        Log.d(FileName_KEY, AudioFilePath);
+        mRecorder.setOutputFile(AudioFilePath);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         try {
             mRecorder.prepare();
@@ -531,8 +538,8 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
     private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
-//AudioFileName is global string. it contains the Uri to the recently recorded audio.
-            mPlayer.setDataSource(AudioFileName);
+//AudioFilePath is global string. it contains the Uri to the recently recorded audio.
+            mPlayer.setDataSource(AudioFilePath);
             mPlayer.prepare();
             mPlayer.start();
         } catch (IOException e) {
@@ -625,6 +632,8 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
                 imageFileName= data.getData().getPath();
+                fileNaming=new File(imageFileName);
+                imageName= fileNaming.getName();
                 ImageFileUri =data.getData();
                 imageBitmap = (Bitmap) extras.get(DATA_KEY);
                 setBitmapToImageView(imageBitmap);
@@ -640,6 +649,8 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
                     Bundle selectedImage = data.getExtras();
                     ImageFileUri=data.getData();
                     imageFileName=data.getData().getPath();
+                    fileNaming=new File(imageFileName);
+                    imageName= fileNaming.getName();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                     String filePath =  MediaStore.Images.Media.DATA ;
                     Bitmap  imagebitmap=(Bitmap)selectedImage.get(DATA_KEY);
@@ -661,15 +672,19 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
                 }
             }else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK) {
                 selectedImage = data.getData();
-//                AudioFileName= selectedImage.getPath();
+//                AudioFilePath= selectedImage.getPath();
                 ImageFileUri =data.getData();
                 imageFileName=data.getData().getPath();
+                fileNaming=new File(imageFileName);
+                imageName= fileNaming.getName();
                 filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                 imageBitmap= LoadThenDecodeBitmap();
                 setBitmapToImageView(imageBitmap);
             }else if (requestCode == SELECT_PICTURE && resultCode == RESULT_OK){
                 selectedImage = data.getData();
                 imageFileName=data.getData().getPath();
+                fileNaming=new File(imageFileName);
+                imageName= fileNaming.getName();
                 ImageFileUri =data.getData();
                 filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                 if (selectedImage!=null){
@@ -678,6 +693,8 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
                 }else {
                     Bundle selectedImage = data.getExtras();
                     imageFileName=data.getData().getPath();
+                    fileNaming=new File(imageFileName);
+                    imageName= fileNaming.getName();
                     ImageFileUri =data.getData();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
                     imageBitmap=(Bitmap)selectedImage.get(DATA_KEY);
@@ -939,7 +956,7 @@ public class PublishArticleActivity extends AppCompatActivity implements View.On
             prepareforStop();
             stopRecording();
         }else if (v==imageViewPlay) {
-            if (!isPlaying && AudioFileName != null) {
+            if (!isPlaying && AudioFilePath != null) {
                 isPlaying = true;
                 startPlaying();
             } else {

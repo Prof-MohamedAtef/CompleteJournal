@@ -47,6 +47,7 @@ public class InsertArticleAsyncTask extends AsyncTask<String, Void, ArrayList<Op
     private String Json_Url;
     private String REQUEST_METHOD="POST";
     ArrayList<OptionsEntity> list = new ArrayList<OptionsEntity>();
+    private String ArticleID_P;
 
 
     public InsertArticleAsyncTask(OnUploadCompleted onUploadCompleted, Context context,
@@ -55,7 +56,7 @@ public class InsertArticleAsyncTask extends AsyncTask<String, Void, ArrayList<Op
         dialog = new ProgressDialog(context);
         this.mContext=context;
         this.Title_P=title;
-        this.Description_P=desc;
+//        this.Description_P=desc;
         this.Category_id_P=categ_id;
         this.imageBitmap_P=img_bmp;
         this.TokenID_P=token_id;
@@ -77,6 +78,7 @@ public class InsertArticleAsyncTask extends AsyncTask<String, Void, ArrayList<Op
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        //http://fla4news.com/news/api/v1/create_news?title=category_name&desc=tokenID&category_id=article_id&api_token=hLtoLZhW4KYw4GialYEnCfmFz2gdMrbCzRxdgC1W9Lg3eyn9d8fXTMZrRifB
         Json_Url = "http://fla4news.com/news/api/v1/create_news";
         try{
             if (dialog!=null&&dialog.isShowing()){
@@ -91,7 +93,7 @@ public class InsertArticleAsyncTask extends AsyncTask<String, Void, ArrayList<Op
     }
 
 
-    String Title_P,Description_P, Category_id_P,Date_STR_P, fileName_P, TokenID_P;
+    String Title_P,Category_id_P, TokenID_P;
     Bitmap imageBitmap_P;
 
     String TITLE_STR;
@@ -120,11 +122,11 @@ public class InsertArticleAsyncTask extends AsyncTask<String, Void, ArrayList<Op
             httpURLConnection.setDoInput(true);
             OutputStream outputStream = httpURLConnection.getOutputStream();
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-
-            if (Title_P != null && Description_P == null && Category_id_P== null && Date_STR_P!= null&& imageBitmap_P!=null&&fileName_P!=null&&TokenID_P!=null) {
+            //title=category_name&desc=tokenID&category_id=article_id&
+            if (ArticleID_P==null&& Category_id_P== null && TokenID_P!=null) {
                 data_String_insert =
                         URLEncoder.encode("title", "UTF-8") + "=" + URLEncoder.encode(Title_P, "UTF-8") + "&" +
-                                URLEncoder.encode("desc", "UTF-8") + "=" + URLEncoder.encode(Description_P, "UTF-8") + "&" +
+//                                URLEncoder.encode("desc", "UTF-8") + "=" + URLEncoder.encode(Description_P, "UTF-8") + "&" +
                                 URLEncoder.encode("category_id", "UTF-8") + "=" + URLEncoder.encode(Category_id_P, "UTF-8") + "&" +
 //                                URLEncoder.encode("img", "UTF-8") + "=" + URLEncoder.encode(imageBitmap_P, "UTF-8") + "&" +
                                 URLEncoder.encode("api_token", "UTF-8") + "=" + URLEncoder.encode(TokenID_P, "UTF-8");

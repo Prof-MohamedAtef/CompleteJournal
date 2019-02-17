@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -41,6 +40,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -81,11 +82,11 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Sessio
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config.Category_id;
 
-public class AddArticleActivity extends AppCompatActivity implements View.OnClickListener,
+public class PostToNewsFeedActivity extends AppCompatActivity implements View.OnClickListener,
         CategoryAsyncTask.OnCategoriesCompleted,
-        InsertArticleAsyncTask.OnUploadCompleted {
+        InsertArticleAsyncTask.OnUploadCompleted{
 
-    private final String LOG_TAG = "My Activity Name";
+    private final String LOG_TAG = PublishArticleActivity.class.getSimpleName();
     /*
     appBarr
      */
@@ -103,7 +104,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     /*
     audio
      */
-    private int RECORD_AUDIO_REQUEST_CODE = 123;
+    private int RECORD_AUDIO_REQUEST_CODE =123 ;
     @BindView(R.id.chronometerTimer)
     Chronometer chronometerTimer;
     @BindView(R.id.imageViewRecord)
@@ -160,36 +161,36 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     CoordinatorLayout draw_insets_frame_layout;
 
     public static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 55;
-    private String IMAGE_TYPE = "image/*";
-    final static int SELECT_PICTURE = 12;
+    private String IMAGE_TYPE="image/*";
+    final static int SELECT_PICTURE=12;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     protected static final int GALLERY_PICTURE = 1;
-    final static int RESULT_LOAD_IMAGE = 11;
+    final static int RESULT_LOAD_IMAGE=11;
     String selectedImagePath;
     Uri selectedImage;
     Bitmap bitmap;
     Bitmap imageBitmap;
     BitmapFactory.Options imageBitmapOp;
-    String[] filePathColumn;
-    private boolean HasImage = false;
+    String [] filePathColumn;
+    private boolean HasImage=false;
     private String UploadedImage1;
-    private String DATA_KEY = "data";
-    private java.lang.String SampleDateFormat_KEY = "yyyyMMdd_HHmmss";
-    private String JPEG_KEY = "JPEG_";
-    private java.lang.String JPG_EXTENSION = ".jpg";
-    private String FILE_EXTENSION = "file:";
-    private String URGENT_KEY = "URGENT";
-    private String POLITICS_KEY = "POLITICS";
-    private String ART_CULTURE_KEY = "ART_CULTURE";
-    private String SPORTS = "SPORTS";
-    private String REPORTS_KEY = "REPORTS";
-    private String TECHNOLOGY_KEY = "TECHNOLOGY";
-    private String BUSINESS_KEY = "BUSINESS";
-    private String FOOD_KEY = "FOOD";
-    private String FAMILY_KEY = "FAMILY";
-    private String HERITAGE_KEY = "HERITAGE";
-    private String OPINIONS_KEY = "OPINIONS";
-    private String SELECT_CATEGORY = "SELECT_CATEGORY";
+    private String DATA_KEY="data";
+    private java.lang.String SampleDateFormat_KEY="yyyyMMdd_HHmmss";
+    private String JPEG_KEY="JPEG_";
+    private java.lang.String JPG_EXTENSION=".jpg";
+    private String FILE_EXTENSION="file:";
+    private String URGENT_KEY="URGENT";
+    private String POLITICS_KEY="POLITICS";
+    private String ART_CULTURE_KEY="ART_CULTURE";
+    private String SPORTS="SPORTS";
+    private String REPORTS_KEY="REPORTS";
+    private String TECHNOLOGY_KEY="TECHNOLOGY";
+    private String BUSINESS_KEY="BUSINESS";
+    private String FOOD_KEY="FOOD";
+    private String FAMILY_KEY="FAMILY";
+    private String HERITAGE_KEY="HERITAGE";
+    private String OPINIONS_KEY="OPINIONS";
+    private String SELECT_CATEGORY="SELECT_CATEGORY";
     private String Title;
     private String Description;
     private String Category;
@@ -202,29 +203,31 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     private String TokenID;
     SnackBarClassLauncher snackBarLauncher;
     Snackbar snackbar;
-    private String Categories_URL = "http://fla4news.com/news/api/v1/categories";
-    private String POSTED_ARTICLE = "PostedArticle";
+    private String Categories_URL="http://fla4news.com/news/api/v1/categories";
+    private String POSTED_ARTICLE="PostedArticle";
 
     private DatabaseReference mDatabase;
     FirebaseHelper firebaseHelper;
     FirebaseStorage storage;
     StorageReference storageReference;
     private Uri ImageFileUri;
-    private static boolean HasDataUploaded = false;
-    private static boolean ImageHasUploaded = false;
-    private String FileName_KEY = "filename";
-    private String AUDIO_TYPE = "Voice/*";
+    private static boolean HasDataUploaded=false;
+    private static boolean ImageHasUploaded=false;
+    private String FileName_KEY="filename";
+    private String AUDIO_TYPE="Voice/*";
     private String imageName;
     private FirebaseAudioHelper firebaseAudioHelper;
     private FirebaseDataHolder firebaseDataHolder;
     private FirebaseImageHelper firebaseImageHelper;
     private String AudioFileName;
-    private Handler handler;
+    private String ImageURL;
+    private String currentArticleID;
+    private String ImageURL_KEY="imageFileUri";
 
     private void InsertIntoFirebaseDatabase(FirebaseDataHolder firebaseDataHolder) {
-        String ArticleID = mDatabase.push().getKey();
-        mDatabase.child(ArticleID).setValue(firebaseDataHolder);
-        UserChangeListener(ArticleID);
+        currentArticleID=mDatabase.push().getKey();
+        mDatabase.child(currentArticleID).setValue(firebaseDataHolder);
+        UserChangeListener(currentArticleID);
     }
 
     private void UserChangeListener(final String articleID) {
@@ -232,15 +235,14 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         mDatabase.child(articleID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                FirebaseDataHolder firebaseDataHolder = dataSnapshot.getValue(FirebaseDataHolder.class);
-                if (firebaseDataHolder == null) {
+                FirebaseDataHolder firebaseDataHolder =dataSnapshot.getValue(FirebaseDataHolder.class);
+                if (firebaseDataHolder ==null){
                     Log.e(LOG_TAG, "User data is null!");
                     return;
                 }
-                Log.e(LOG_TAG, "options data is changed!" + firebaseDataHolder.getTITLE() + ", " + firebaseDataHolder.getDESCRIPTION());
-                HasDataUploaded = true;
+                Log.e(LOG_TAG, "options data is changed!" + firebaseDataHolder.getTITLE()+ ", " + firebaseDataHolder.getDESCRIPTION() );
+                HasDataUploaded=true;
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e(LOG_TAG, "Failed to read options", databaseError.toException());
@@ -251,48 +253,44 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_article);
+        setContentView(R.layout.activity_post_to_news_feed);
         ButterKnife.bind(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             getPermissionToRecordAudio();
         }
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        if (mDatabase == null) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            mDatabase = database.getReference("data");
+        if (mDatabase==null){
+            FirebaseDatabase database= FirebaseDatabase.getInstance();
+            mDatabase=database.getReference(DATA_KEY);
             mDatabase.keepSynced(true);
         }
-        if (storage == null) {
+        if (storage==null){
             storage = FirebaseStorage.getInstance();
             storageReference = storage.getReference();
         }
-
         ImagePost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Title = txt_ReportTitle.getText().toString();
-                Description = txt_ReportDescription.getText().toString();
-
+                Title= txt_ReportTitle.getText().toString();
+                Description=txt_ReportDescription.getText().toString();
                 Date_STR = Now.toString();
                 user = sessionManagement.getUserDetails();
                 if (user != null) {
                     LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
-                    TokenID = user.get(SessionManagement.KEY_idToken);
-                    LoggedUserName = user.get(SessionManagement.KEY_EMAIL);
+                    TokenID=user.get(SessionManagement.KEY_idToken);
+                    LoggedUserName=user.get(SessionManagement.KEY_EMAIL);
                 }
-                if (Title != null && Description != null && Category != null && Date_STR != null && ImageFileUri != null && imageName != null && LoggedEmail != null && TokenID != null && LoggedUserName != null) {//username/userID
-                    if (AudioFilePath != null) {
+                if (Title != null && Description != null && Category != null &&Date_STR!=null&& ImageFileUri != null && imageName!=null&& LoggedEmail != null&&TokenID!=null&&LoggedUserName!=null) {//username/userID
+                    if (AudioFilePath !=null) {
                         Uri Audio_uri = Uri.fromFile(new File(AudioFilePath));
                         File AudioNaming = new File(AudioFilePath);
                         AudioFileName = AudioNaming.getName();
+
                         firebaseAudioHelper = new FirebaseAudioHelper(Audio_uri);
-//                        firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, imageName, ImageFileUri, AudioFileName, TokenID, Date_STR, LoggedUserName);
-                        firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
-                    } else {
-//                        firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, imageName, ImageFileUri, TokenID, Date_STR, LoggedUserName);
-                        firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
                     }
+                    firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
+                    firebaseDataHolder = new FirebaseDataHolder(Title, Description, Category, LoggedEmail, imageName, TokenID, Date_STR, LoggedUserName);
                     AddArticleToFirebase(firebaseDataHolder, firebaseImageHelper, firebaseAudioHelper);
                 }
             }
@@ -301,7 +299,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         imageViewStop.setOnClickListener(this);
         imageViewPlay.setOnClickListener(this);
         setSupportActionBar(detailToolbar);
-        assert getSupportActionBar() != null;
+        assert getSupportActionBar()!=null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         detailToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -313,15 +311,15 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
+
         Categories_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Category=Categories_spinner.getSelectedItem().toString();
 //                Category= Config.CategoriesList.get(position).getCategoryName();
-                Category = Config.CategoriesList.get(position);
-                Category_id = position;
+                Category= Config.CategoriesList.get(position);
+                Category_id=position;
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -341,7 +339,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         PostTypes.add(FAMILY_KEY);
         PostTypes.add(HERITAGE_KEY);
         PostTypes.add(OPINIONS_KEY);
-        Config.CategoriesList = PostTypes;
+        Config.CategoriesList=PostTypes;
         CustomSpinnerAdapter customSpinnerAdapterPostType = new CustomSpinnerAdapter(getApplicationContext(), PostTypes);
         Categories_spinner.setAdapter(customSpinnerAdapterPostType);
         calendar = new Calendar() {
@@ -393,18 +391,18 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         });
 
 
-        sessionManagement = new SessionManagement(getApplicationContext());
-        user = sessionManagement.getUserDetails();
+        sessionManagement=new SessionManagement(getApplicationContext());
+        user=sessionManagement.getUserDetails();
 
-        if (user != null) {
+        if (user!=null){
             LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
-            LoggedUserName = user.get(SessionManagement.KEY_NAME);
-            LoggedProfilePic = user.get(SessionManagement.KEY_Profile_Pic);
-            TokenID = user.get(SessionManagement.KEY_idToken);
-            if (LoggedUserName != null) {
+            LoggedUserName=user.get(SessionManagement.KEY_NAME);
+            LoggedProfilePic=user.get(SessionManagement.KEY_Profile_Pic);
+            TokenID=user.get(SessionManagement.KEY_idToken);
+            if (LoggedUserName!=null){
                 UserNameText.setText(LoggedUserName);
             }
-            if (LoggedProfilePic != null) {
+            if (LoggedProfilePic!=null){
                 Picasso.with(getApplicationContext()).load(LoggedProfilePic)
                         .error(R.drawable.news)
                         .into(ProfilePicView);
@@ -426,7 +424,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 //    }
 
     private Snackbar NetCut() {
-        return snackbar = Snackbar
+        return snackbar= Snackbar
                 .make(draw_insets_frame_layout, getApplicationContext().getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG)
                 .setAction(getApplicationContext().getResources().getString(R.string.retry), new View.OnClickListener() {
                     @Override
@@ -446,14 +444,14 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         // since the user can revoke permissions at any time through Settings
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                || ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
 
             // The permission is NOT already granted.
             // Check if the user has been asked about this permission already and denied
             // it. If so, we want to give more explanation about why the permission is needed.
             // Fire off an async request to actually get the permission
             // This will show the standard permission request dialog UI
-            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO, WRITE_EXTERNAL_STORAGE},
+            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     RECORD_AUDIO_REQUEST_CODE);
 
         }
@@ -479,7 +477,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         if (!file.exists()) {
             file.mkdirs();
         }
-        AudioFilePath = root.getAbsolutePath()
+        AudioFilePath =  root.getAbsolutePath()
                 + "/VoiceRecorderSimplifiedCoding/Audios/" + String.valueOf(System.currentTimeMillis() + ".mp3");
         Log.d(FileName_KEY, AudioFilePath);
         mRecorder.setOutputFile(AudioFilePath);
@@ -499,9 +497,9 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void stopPlaying() {
-        try {
+        try{
             mPlayer.release();
-        } catch (Exception e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
         mPlayer = null;
@@ -519,10 +517,10 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 
     private void stopRecording() {
 
-        try {
+        try{
             mRecorder.stop();
             mRecorder.release();
-        } catch (Exception e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
         mRecorder = null;
@@ -536,7 +534,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onStart() {
         super.onStart();
-        firebaseHelper = new FirebaseHelper();
+        firebaseHelper=new FirebaseHelper();
     }
 
     private void startPlaying() {
@@ -571,7 +569,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mPlayer != null && fromUser) {
+                if( mPlayer!=null && fromUser ){
                     //here the track's progress is being changed as per the progress bar
                     mPlayer.seekTo(progress);
                     //timer is being updated as per the progress of the seekbar
@@ -598,8 +596,8 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     };
 
     private void seekUpdation() {
-        if (mPlayer != null) {
-            int mCurrentPosition = mPlayer.getCurrentPosition();
+        if(mPlayer != null){
+            int mCurrentPosition = mPlayer.getCurrentPosition() ;
             seekBar.setProgress(mCurrentPosition);
             lastProgress = mCurrentPosition;
         }
@@ -622,47 +620,48 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         Intent chooserIntent = Intent.createChooser(pickIntent,
                 pickTitle);
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
-                new Intent[]{takePhotoIntent});
+                new Intent[] { takePhotoIntent });
         startActivityForResult(chooserIntent, SELECT_PICTURE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED && data != null) {
-            ActivityCompat.requestPermissions(AddArticleActivity.this,
+        if(resultCode != RESULT_CANCELED&&data!=null){
+            ActivityCompat.requestPermissions(PostToNewsFeedActivity.this,
                     new String[]{WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
-                imageFileName = data.getData().getPath();
-                fileNaming = new File(imageFileName);
-                imageName = fileNaming.getName();
-                ImageFileUri = data.getData();
+                imageFileName= data.getData().getPath();
+                fileNaming=new File(imageFileName);
+                imageName= fileNaming.getName();
+                ImageFileUri =data.getData();
                 imageBitmap = (Bitmap) extras.get(DATA_KEY);
                 setBitmapToImageView(imageBitmap);
-                try {
+                try{
                     createImageFile();
                     addPicToPhone();
-                } catch (Exception e) {
+                }catch (Exception e){
                     e.printStackTrace();
                 }
-            } else if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
+            }
+            else if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
                 if (data != null) {
                     Bundle selectedImage = data.getExtras();
-                    ImageFileUri = data.getData();
-                    imageFileName = data.getData().getPath();
-                    fileNaming = new File(imageFileName);
-                    imageName = fileNaming.getName();
+                    ImageFileUri=data.getData();
+                    imageFileName=data.getData().getPath();
+                    fileNaming=new File(imageFileName);
+                    imageName= fileNaming.getName();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
-                    String filePath = MediaStore.Images.Media.DATA;
-                    Bitmap imagebitmap = (Bitmap) selectedImage.get(DATA_KEY);
-                    Config.imageBitmap = imagebitmap.toString();
+                    String filePath =  MediaStore.Images.Media.DATA ;
+                    Bitmap  imagebitmap=(Bitmap)selectedImage.get(DATA_KEY);
+                    Config.imageBitmap=imagebitmap.toString();
                     Cursor c = getContentResolver().query(Uri.parse(filePath), filePathColumn, null, null, null);
                     c.moveToFirst();
                     int columnIndex = c.getColumnIndex(filePathColumn[0]);
                     selectedImagePath = c.getString(columnIndex);
-                    Config.image_name = selectedImagePath;
+                    Config.image_name=selectedImagePath;
                     c.close();
                     if (selectedImagePath != null) {
                         bitmap = BitmapFactory.decodeFile(selectedImagePath);
@@ -673,47 +672,47 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
                     Toast.makeText(getApplicationContext(), getString(R.string.canceled),
                             Toast.LENGTH_SHORT).show();
                 }
-            } else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK) {
+            }else if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK) {
                 selectedImage = data.getData();
 //                AudioFilePath= selectedImage.getPath();
-                ImageFileUri = data.getData();
-                imageFileName = data.getData().getPath();
-                fileNaming = new File(imageFileName);
-                imageName = fileNaming.getName();
+                ImageFileUri =data.getData();
+                imageFileName=data.getData().getPath();
+                fileNaming=new File(imageFileName);
+                imageName= fileNaming.getName();
                 filePathColumn = new String[]{MediaStore.Images.Media.DATA};
-                imageBitmap = LoadThenDecodeBitmap();
+                imageBitmap= LoadThenDecodeBitmap();
                 setBitmapToImageView(imageBitmap);
-            } else if (requestCode == SELECT_PICTURE && resultCode == RESULT_OK) {
+            }else if (requestCode == SELECT_PICTURE && resultCode == RESULT_OK){
                 selectedImage = data.getData();
-                imageFileName = data.getData().getPath();
-                fileNaming = new File(imageFileName);
-                imageName = fileNaming.getName();
-                ImageFileUri = data.getData();
+                imageFileName=data.getData().getPath();
+                fileNaming=new File(imageFileName);
+                imageName= fileNaming.getName();
+                ImageFileUri =data.getData();
                 filePathColumn = new String[]{MediaStore.Images.Media.DATA};
-                if (selectedImage != null) {
-                    imageBitmap = LoadThenDecodeBitmap();
+                if (selectedImage!=null){
+                    imageBitmap= LoadThenDecodeBitmap();
                     setBitmapToImageView(imageBitmap);
-                } else {
+                }else {
                     Bundle selectedImage = data.getExtras();
-                    imageFileName = data.getData().getPath();
-                    fileNaming = new File(imageFileName);
-                    imageName = fileNaming.getName();
-                    ImageFileUri = data.getData();
+                    imageFileName=data.getData().getPath();
+                    fileNaming=new File(imageFileName);
+                    imageName= fileNaming.getName();
+                    ImageFileUri =data.getData();
                     filePathColumn = new String[]{MediaStore.Images.Media.DATA};
-                    imageBitmap = (Bitmap) selectedImage.get(DATA_KEY);
-                    Config.imageBitmap = imageBitmap.toString();
-                    if (imageBitmap != null) {
+                    imageBitmap=(Bitmap)selectedImage.get(DATA_KEY);
+                    Config.imageBitmap=imageBitmap.toString();
+                    if (imageBitmap!= null) {
                         bitmap = Bitmap.createScaledBitmap(imageBitmap, 400, 400, false);
                         setBitmapToImageView(bitmap);
                     }
                 }
             }
-            if (Config.currentImagePAth != null) {
-                UploadedImage1 = Config.currentImagePAth;
-            } else if (Config.imageBitmap != null) {
-                UploadedImage1 = Config.imageBitmap;
-            } else if (Config.selectedImagePath != null) {
-                UploadedImage1 = Config.selectedImagePath;
+            if (Config.currentImagePAth!=null){
+                UploadedImage1= Config.currentImagePAth;
+            }else if (Config.imageBitmap!=null){
+                UploadedImage1= Config.imageBitmap;
+            }else if (Config.selectedImagePath!=null){
+                UploadedImage1=Config.selectedImagePath;
             }
         }
     }
@@ -721,17 +720,17 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onResume() {
         super.onResume();
-        Now = Calendar.getInstance().getTime();
+        Now= Calendar.getInstance().getTime();
         DateTime.setText(Now.toString());
     }
 
     private void AddArticleToFirebase(FirebaseDataHolder firebaseDataHolder, FirebaseImageHelper firebaseImageHelper, FirebaseAudioHelper firebaseAudioHelper) {
-        VerifyConnection verifyConnection = new VerifyConnection(getApplicationContext());
+        VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
         verifyConnection.checkConnection();
-        if (verifyConnection.isConnected()) {
+        if (verifyConnection.isConnected()){
             InsertIntoFirebaseDatabase(firebaseDataHolder);
             UploadImageFileToFirebase(firebaseImageHelper);
-            if (firebaseAudioHelper != null) {
+            if (firebaseAudioHelper!=null){
                 UploadAudioFileToFirebase(firebaseAudioHelper);
             }
 //            new Handler().postDelayed(new Runnable() {
@@ -742,77 +741,89 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 //                    }
 //                }
 //            },1500);
-        } else {
+        }else {
             // Show Snack
-            snackbar = NetCut();
+            snackbar=NetCut();
             snackBarLauncher.SnackBarInitializer(snackbar);
         }
     }
 
     private void UploadAudioFileToFirebase(FirebaseAudioHelper firebaseAudioHelper) {
-        Uri Audio = firebaseAudioHelper.getAudioFileUri();
-        if (Audio != null) {
+        Uri Audio= firebaseAudioHelper.getAudioFileUri();
+        if (Audio!=null){
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle(getResources().getString(R.string.uploading));
             progressDialog.show();
-            StorageReference reference = storageReference.child(AUDIO_TYPE + "/" + UUID.randomUUID().toString());
+            StorageReference reference=storageReference.child(AUDIO_TYPE+"/"+ UUID.randomUUID().toString());
             reference.putFile(Audio)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
-                            ImageHasUploaded = true;
+                            Toast.makeText(PostToNewsFeedActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
+                            ImageHasUploaded=true;
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostToNewsFeedActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                                     .getTotalByteCount());
-                            progressDialog.setMessage(getResources().getString(R.string.uploaded) + (int) progress + getResources().getString(R.string.percent));
+                            progressDialog.setMessage(getResources().getString(R.string.uploaded)+(int)progress+getResources().getString(R.string.percent));
                         }
                     });
         }
     }
 
     private void UploadImageFileToFirebase(FirebaseImageHelper firebaseImageHelper) {
-        Uri Image = firebaseImageHelper.getImageFileUri();
+        Uri Image= firebaseImageHelper.getImageFileUri();
 //        Uri Image=null;
-        if (Image != null) {
+        if (Image!=null){
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle(getResources().getString(R.string.uploading));
             progressDialog.show();
-            StorageReference reference = storageReference.child(IMAGE_TYPE + "/" + UUID.randomUUID().toString());
+            final StorageReference reference=storageReference.child(IMAGE_TYPE+"/"+ UUID.randomUUID().toString());
             reference.putFile(Image)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
-                            ImageHasUploaded = true;
+                            Toast.makeText(PostToNewsFeedActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
+                            ImageHasUploaded=true;
+                            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+
+                                    ImageURL= uri.toString();
+                                    DatabaseReference updateImageUrl=FirebaseDatabase.getInstance()
+                                            .getReference(DATA_KEY)
+                                            .child(currentArticleID);
+                                    updateImageUrl.child(ImageURL_KEY).setValue(ImageURL);
+                                    UserChangeListener(currentArticleID);
+                                }
+                            });
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostToNewsFeedActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                                     .getTotalByteCount());
-                            progressDialog.setMessage(getResources().getString(R.string.uploaded) + (int) progress + getResources().getString(R.string.percent));
+                            progressDialog.setMessage(getResources().getString(R.string.uploaded)+(int)progress+getResources().getString(R.string.percent));
                         }
                     });
         }
@@ -835,24 +846,24 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 //        }
 //    }
 
-    private Bitmap LoadThenDecodeBitmap() {
+    private Bitmap LoadThenDecodeBitmap(){
         Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        selectedImagePath = cursor.getString(columnIndex);
-        imageBitmap = decodeSampledBitmapFromResource(selectedImagePath, 100, 100);
-        Config.selectedImagePath = selectedImagePath;
-        Config.imageBitmap = imageBitmap.toString();
-        Config.image_name = selectedImagePath;
+        selectedImagePath= cursor.getString(columnIndex);
+        imageBitmap= decodeSampledBitmapFromResource(selectedImagePath,100,100);
+        Config.selectedImagePath=selectedImagePath;
+        Config.imageBitmap=imageBitmap.toString();
+        Config.image_name=selectedImagePath;
         return imageBitmap;
     }
 
     public static Bitmap decodeSampledBitmapFromResource(String selectedImagePath, int reqWidth, int reqHeight) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(selectedImagePath, options);
-        Config.selectedImagePath = selectedImagePath;
-        Config.image_name = selectedImagePath;
+        BitmapFactory.decodeFile(selectedImagePath,options);
+        Config.selectedImagePath=selectedImagePath;
+        Config.image_name=selectedImagePath;
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         // Decode bitmap with inSampleSize set
@@ -863,7 +874,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
-// Raw height and width of image
+        // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
@@ -880,20 +891,20 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         return inSampleSize;
     }
 
-    private void addPicToPhone() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(currentImagePAth);
-        Uri contentUri = Uri.fromFile(f);
-        selectedImage = contentUri;
+    private void  addPicToPhone(){
+        Intent mediaScanIntent= new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f= new File(currentImagePAth);
+        Uri contentUri= Uri.fromFile(f);
+        selectedImage=contentUri;
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
 
 
-    private void CreateImageFileName() {
+    private void CreateImageFileName(){
         String timpstamp = new SimpleDateFormat(SampleDateFormat_KEY).format(new Date());
-        imageFileName = timpstamp + "1" + JPEG_KEY;
-        Config.image_name = imageFileName;
+        imageFileName = timpstamp+"1" + JPEG_KEY ;
+        Config.image_name=imageFileName;
     }
 
     private File createImageFile() throws IOException {
@@ -901,7 +912,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         File image = null;
         CreateImageFileName();
         File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        Config.StorageDir = storageDirectory;
+        Config.StorageDir=storageDirectory;
         image = CreateTempFileMethod(storageDirectory);
         return image;
     }
@@ -912,7 +923,7 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
         image = File.createTempFile(imageFileName, JPG_EXTENSION, storageDirectory);
         //save file name
         currentImagePAth = FILE_EXTENSION + image.getAbsolutePath();
-        Config.currentImagePAth = currentImagePAth;
+        Config.currentImagePAth=currentImagePAth;
         return image;
     }
 
@@ -941,24 +952,24 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void setBitmapToImageView(Bitmap imageBitmap) {
-        if (ImageReport.getDrawable() == null) {
+        if (ImageReport.getDrawable()==null){
             ImageReport.setImageBitmap(imageBitmap);
-            HasImage = true;
-        } else {
+            HasImage=true;
+        }else {
             ImageReport.setImageBitmap(imageBitmap);
-            HasImage = true;
+            HasImage=true;
         }
     }
 
     @Override
     public void onClick(View v) {
-        if (v == imageViewRecord) {
+        if (v==imageViewRecord){
             prepareforRecording();
             startRecording();
-        } else if (v == imageViewStop) {
+        }else if (v==imageViewStop) {
             prepareforStop();
             stopRecording();
-        } else if (v == imageViewPlay) {
+        }else if (v==imageViewPlay) {
             if (!isPlaying && AudioFilePath != null) {
                 isPlaying = true;
                 startPlaying();
@@ -971,15 +982,15 @@ public class AddArticleActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onCategoriesCompleted(ArrayList<OptionsEntity> result) {
-        if (result != null) {
+        if (result!=null){
 //            Config.CategoriesList=result;
         }
     }
 
     @Override
     public void onUploadTaskCompleted(ArrayList<OptionsEntity> result) {
-        if (result != null) {
-            Intent intent_PostedPost = new Intent(getApplicationContext(), HomeActivity.class);
+        if (result!=null){
+            Intent intent_PostedPost= new Intent(getApplicationContext(), HomeActivity.class);
             Bundle b = new Bundle();
             b.putSerializable(POSTED_ARTICLE, result);
             intent_PostedPost.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
