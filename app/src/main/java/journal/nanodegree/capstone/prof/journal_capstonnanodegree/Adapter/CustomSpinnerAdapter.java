@@ -23,9 +23,9 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 public class CustomSpinnerAdapter extends BaseAdapter {
 
     private final Context mContext;
-    private ArrayList<OptionsEntity> SpinnerFeedItemList;
+    private ArrayList<String> SpinnerFeedItemList;
 
-    public CustomSpinnerAdapter(Context mContext, ArrayList<OptionsEntity> spinnerFeedItemList) {
+    public CustomSpinnerAdapter(Context mContext, ArrayList<String> spinnerFeedItemList) {
         this.mContext= mContext;
         SpinnerFeedItemList = spinnerFeedItemList;
     }
@@ -51,7 +51,7 @@ public class CustomSpinnerAdapter extends BaseAdapter {
         txt.setPadding(16, 16, 16, 16);
         txt.setTextSize(18);
         txt.setGravity(Gravity.CENTER_VERTICAL);
-        txt.setText(SpinnerFeedItemList.get(position).getCategoryName());
+        txt.setText(SpinnerFeedItemList.get(position));
         txt.setTextColor(Color.parseColor("#000000"));
         return  txt;
     }
@@ -63,7 +63,7 @@ public class CustomSpinnerAdapter extends BaseAdapter {
         txt.setGravity(Gravity.CENTER);
         txt.setPadding(10, 10, 10, 10);
         txt.setTextSize(16);
-        txt.setText(SpinnerFeedItemList.get(position).getCategoryName());
+        txt.setText(SpinnerFeedItemList.get(position));
         txt.setTextColor(Color.parseColor("#FFFFFF"));
         txt.setBackgroundResource(R.color.primaryColor);
         return  txt;

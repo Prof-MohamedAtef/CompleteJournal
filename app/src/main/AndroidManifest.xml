@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="journal.nanodegree.capstone.prof.journal_capstonnanodegree">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -21,17 +24,17 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".Activities.HomeActivity"
-            android:windowSoftInputMode="stateAlwaysHidden">
-        </activity>
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
         <activity
             android:name=".Activities.SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/ArishTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" >
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -40,8 +43,10 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
@@ -54,9 +59,11 @@
             android:name="com.facebook.FacebookContentProvider"
             android:authorities="com.facebook.app.FacebookContentProvider162164734646634"
             android:exported="true" />
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
         <activity
             android:name=".Activities.AddArticleActivity"
             android:parentActivityName=".Activities.HomeActivity"
@@ -71,17 +78,23 @@
             android:parentActivityName=".Activities.HomeActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".Activities.AudioActivity" />
+
         <receiver android:name=".Widget.UrgentWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/urgent_widget_info" />
         </receiver>
+
         <service
             android:name=".helpers.Services.UrgentWidgetService"
             android:enabled="true" />
+
         <activity android:name=".Activities.WebViewerActivity" />
+        <activity android:name=".Activities.PublishArticleActivity"></activity>
     </application>
+
 </manifest>

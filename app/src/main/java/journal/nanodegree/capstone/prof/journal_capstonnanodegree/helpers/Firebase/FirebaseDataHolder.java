@@ -7,19 +7,21 @@ import android.net.Uri;
  */
 
 public class FirebaseDataHolder {
-    String TITLE, DESCRIPTION, CategoryID, PUBLISHEDAT, UserEmail, TokenID;
+    String TITLE, DESCRIPTION, CategoryID, PUBLISHEDAT, UserEmail, TokenID, Date, UserName;
     String ImageFileUri;
 
     public FirebaseDataHolder (){
     }
 
-    public FirebaseDataHolder(String title_str, String description_str, String category_id_str, String api_token_str, String image_str, String TokenID) {
+    public FirebaseDataHolder(String title_str, String description_str, String category_id_str, String api_token_str, String image_str, String TokenID,String date, String user_name) {
         this.TITLE=title_str;
         this.DESCRIPTION=description_str;
         this.CategoryID=category_id_str;
         this.UserEmail=api_token_str;
         this.ImageFileUri=image_str;
         this.TokenID=TokenID;
+        this.UserName=user_name;
+        this.Date=date;
     }
 
     public String getTokenID() {

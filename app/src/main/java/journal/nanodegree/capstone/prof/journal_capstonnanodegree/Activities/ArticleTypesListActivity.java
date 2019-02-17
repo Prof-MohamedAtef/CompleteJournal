@@ -1,17 +1,24 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,6 +44,7 @@ import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activit
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.REPORTS;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.SPORTS;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.TECHNOLOGY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentSoundPlayer.optionsEntity;
 
 public class ArticleTypesListActivity extends AppCompatActivity implements ArticlesMasterListFragment.OnSelectedArticleListener,
         SwipeRefreshLayout.OnRefreshListener{
@@ -69,6 +77,8 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     private boolean ContentProviderHasData;
     FirebaseHelper firebaseHelper;
     private DatabaseReference mDatabase;
+    ArrayList<OptionsEntity> FirebaseArticlesList;
+    private String KEY;
 
 
     @Override
@@ -99,6 +109,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         } else {
             mTwoPaneUi = false;
         }
+        FirebaseArticlesList=new ArrayList<>();
         Config.ActivityNum=Activity_Num;
         token= BuildConfig.token;
         apiKey= BuildConfig.ApiKey;
@@ -127,7 +138,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             verifyConnection.checkConnection();
             if (verifyConnection.isConnected()){
                 // get data from firebase
-
+                FetchDataFromFirebase();
             }else {
                 //if no data in content provider // redirect to add article activity
                 // Show Snack
@@ -176,6 +187,69 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
                     .replace(R.id.Article_container, fragmentArticleViewer, Frags_KEY)
                     .commit();
         }
+    }
+
+    private void FetchDataFromFirebase() {
+        DatabaseReference ThoughtsRef=mDatabase.child("data");
+        ValueEventListener valueEventListener=new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                FirebaseArticlesList.clear();
+//                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+//                    KEY=ds.getKey();
+//                    email = ds.child("email").getValue(String.class);
+//                    status_imgUrl = ds.child("status_ImgUrl").getValue(String.class);
+//                    status_str= ds.child("status_Str").getValue(String.class);
+//                    thoughtDate= ds.child("thoughtDate").getValue(String.class);
+//                    thought_str= ds.child("thought_Str").getValue(String.class);
+//                    Log.d("TAG", email+ " / " + status_imgUrl+ " / " + status_str+ " / " + thoughtDate+ " / " + thought_str);
+//
+//                    optionsEntity=new OptionsEntity(key2, email, status_imgUrl,status_str,thoughtDate,thought_str);
+//                    Diarylist.add(optionsEntity);
+//
+//                }
+
+
+
+
+
+
+
+//                if (Diarylist.size()>0) {
+//                    int maxID = DB.getInitialMaxValue();
+//                    if (maxID > 0) {
+//                        boolean Deleted = DB.deleteAll();
+//                        if (Deleted == true) {
+//                            for (final OptionsEntity optionsEntity : Diarylist) {
+//                                // Delete then Insert
+//                                boolean inserted = DB.InsertToDiary(optionsEntity.getKey(),optionsEntity.getThoughtDate(),optionsEntity.getThought_Str(),optionsEntity.getStatus_ImgUrl(),optionsEntity.getStatus_Str(),optionsEntity.getEmail());
+//                                if (inserted == true) {
+//                                }
+//                            }
+//                        }
+//                    } else {
+//                        // Delete then Insert
+//                        for (OptionsEntity optionsEntity : Diarylist) {
+//                            boolean inserted = DB.InsertToDiary(optionsEntity.getKey(),optionsEntity.getThoughtDate(),optionsEntity.getThought_Str(),optionsEntity.getStatus_ImgUrl(),optionsEntity.getStatus_Str(),optionsEntity.getEmail());
+//                            if (inserted == true) {
+//                            }
+//                        }
+//
+//                    }
+//                    LaunchDiaryContent(Diarylist);
+//                }else {
+//                    Intent intent = new Intent(getActivity(), AddToDiary.class);
+//                    getActivity().startActivity(intent);
+//                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        ThoughtsRef.addListenerForSingleValueEvent(valueEventListener);
     }
 
     @Override

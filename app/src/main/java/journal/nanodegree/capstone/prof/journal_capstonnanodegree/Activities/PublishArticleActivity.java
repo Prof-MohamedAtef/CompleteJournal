@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -80,8 +81,8 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Sessio
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config.Category_id;
 
-public class AddArticleActivity extends AppCompatActivity implements View.OnClickListener,
-CategoryAsyncTask.OnCategoriesCompleted,
+public class PublishArticleActivity extends AppCompatActivity implements View.OnClickListener,
+        CategoryAsyncTask.OnCategoriesCompleted,
         InsertArticleAsyncTask.OnUploadCompleted{
 
     private final String LOG_TAG = AddArticleActivity.class.getSimpleName();
@@ -242,7 +243,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_article);
+        setContentView(R.layout.activity_publish_article);
         ButterKnife.bind(this);
 
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
@@ -264,23 +265,25 @@ CategoryAsyncTask.OnCategoriesCompleted,
                 Title= txt_ReportTitle.getText().toString();
                 Description=txt_ReportDescription.getText().toString();
 
-                    Date_STR = Now.toString();
-                    user = sessionManagement.getUserDetails();
-                    if (user != null) {
-                        LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
-                        TokenID=user.get(SessionManagement.KEY_idToken);
-                        LoggedUserName=user.get(SessionManagement.KEY_EMAIL);
+                Date_STR = Now.toString();
+                user = sessionManagement.getUserDetails();
+                if (user != null) {
+                    LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
+                    TokenID=user.get(SessionManagement.KEY_idToken);
+                    LoggedUserName=user.get(SessionManagement.KEY_EMAIL);
+                }
+                if (Title != null && Description != null && Category != null &&Date_STR!=null&& ImageFileUri != null && LoggedEmail != null&&TokenID!=null&&LoggedUserName!=null) {//username/userID
+                    String Image = ImageFileUri.toString();
+                    FirebaseDataHolder firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, Image, TokenID, Date_STR, LoggedUserName);
+                    FirebaseImageHelper firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
+                    FirebaseAudioHelper firebaseAudioHelper=null;
+                    if (AudioFileName!=null){
+                        Uri Audio_uri=Uri.fromFile(new File(AudioFileName));
+//                        firebaseAudioHelper=new FirebaseAudioHelper(Uri.parse(AudioFileName));
+                        firebaseAudioHelper=new FirebaseAudioHelper(Audio_uri);
                     }
-                    if (Title != null && Description != null && Category != null &&Date_STR!=null&& ImageFileUri != null && LoggedEmail != null&&TokenID!=null&&LoggedUserName!=null) {//username/userID
-                        String Image = ImageFileUri.toString();
-                        FirebaseDataHolder firebaseDataHolder = new FirebaseDataHolder(Title, Description, String.valueOf(Category_id), LoggedEmail, Image, TokenID, Date_STR, LoggedUserName);
-                        FirebaseImageHelper firebaseImageHelper = new FirebaseImageHelper(ImageFileUri);
-                        FirebaseAudioHelper firebaseAudioHelper=null;
-                        if (AudioFileName!=null){
-                            firebaseAudioHelper=new FirebaseAudioHelper(Uri.parse(AudioFileName));
-                        }
-                        AddArticleToFirebase(firebaseDataHolder, firebaseImageHelper, firebaseAudioHelper);
-                    }
+                    AddArticleToFirebase(firebaseDataHolder, firebaseImageHelper, firebaseAudioHelper);
+                }
             }
         });
         imageViewRecord.setOnClickListener(this);
@@ -305,6 +308,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 //                Category=Categories_spinner.getSelectedItem().toString();
 //                Category= Config.CategoriesList.get(position).getCategoryName();
+                Category= Config.CategoriesList.get(position);
                 Category_id=position;
             }
             @Override
@@ -326,6 +330,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
         PostTypes.add(FAMILY_KEY);
         PostTypes.add(HERITAGE_KEY);
         PostTypes.add(OPINIONS_KEY);
+        Config.CategoriesList=PostTypes;
         CustomSpinnerAdapter customSpinnerAdapterPostType = new CustomSpinnerAdapter(getApplicationContext(), PostTypes);
         Categories_spinner.setAdapter(customSpinnerAdapterPostType);
         calendar = new Calendar() {
@@ -614,7 +619,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode != RESULT_CANCELED&&data!=null){
-            ActivityCompat.requestPermissions(AddArticleActivity.this,
+            ActivityCompat.requestPermissions(PublishArticleActivity.this,
                     new String[]{WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
             if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -698,9 +703,6 @@ CategoryAsyncTask.OnCategoriesCompleted,
         super.onResume();
         Now= Calendar.getInstance().getTime();
         DateTime.setText(Now.toString());
-//        year = calendar.get(Calendar.YEAR);
-//        month = calendar.get(Calendar.MONTH);
-//        day = calendar.get(Calendar.DAY_OF_MONTH);
     }
 
     private void AddArticleToFirebase(FirebaseDataHolder firebaseDataHolder, FirebaseImageHelper firebaseImageHelper, FirebaseAudioHelper firebaseAudioHelper) {
@@ -729,7 +731,6 @@ CategoryAsyncTask.OnCategoriesCompleted,
 
     private void UploadAudioFileToFirebase(FirebaseAudioHelper firebaseAudioHelper) {
         Uri Audio= firebaseAudioHelper.getAudioFileUri();
-//        Uri Image=null;
         if (Audio!=null){
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle(getResources().getString(R.string.uploading));
@@ -740,7 +741,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PublishArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
                             ImageHasUploaded=true;
                         }
                     })
@@ -748,7 +749,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PublishArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -775,7 +776,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PublishArticleActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
                             ImageHasUploaded=true;
                         }
                     })
@@ -783,7 +784,7 @@ CategoryAsyncTask.OnCategoriesCompleted,
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PublishArticleActivity.this, getResources().getString(R.string.failed), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -967,3 +968,4 @@ CategoryAsyncTask.OnCategoriesCompleted,
         }
     }
 }
+

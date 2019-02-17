@@ -20,10 +20,6 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.IOException;
@@ -38,10 +34,6 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 
 public class FragmentSoundPlayer extends android.app.Fragment implements View.OnClickListener{
 
-    TrackSelector trackSelector;
-    MediaSource AudioSource;
-    DefaultDataSourceFactory dataSourceFactory;
-    SimpleExoPlayer mSimpleExoPlayer;
     String AudioString;
     Uri AudioUri;
     public static OptionsEntity optionsEntity;
@@ -152,41 +144,6 @@ public class FragmentSoundPlayer extends android.app.Fragment implements View.On
         audio_muted.setVisibility(View.GONE);
         initializeAudioPlayer();
         return rootView;
-    }
-
-    private void releasePlayer() {
-        if (mSimpleExoPlayer != null) {
-            mSimpleExoPlayer.stop();
-            mSimpleExoPlayer.release();
-            mSimpleExoPlayer = null;
-            dataSourceFactory = null;
-            AudioSource = null;
-            trackSelector = null;
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        releasePlayer();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        releasePlayer();
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        releasePlayer();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        releasePlayer();
     }
 
     private void initializeAudioPlayer() {
