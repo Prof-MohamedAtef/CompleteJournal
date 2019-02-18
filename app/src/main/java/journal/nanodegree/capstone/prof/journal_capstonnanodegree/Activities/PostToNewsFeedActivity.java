@@ -80,6 +80,8 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.ArticleType;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.HomeActivity.REPORTS;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config.Category_id;
 
 public class PostToNewsFeedActivity extends AppCompatActivity implements View.OnClickListener,
@@ -223,6 +225,10 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
     private String ImageURL;
     private String currentArticleID;
     private String ImageURL_KEY="imageFileUri";
+    private boolean AudioHasUploaded=false;
+    private String AudioURL;
+    private String AudioURL_KEY="audioFileUri";
+
 
     private void InsertIntoFirebaseDatabase(FirebaseDataHolder firebaseDataHolder) {
         currentArticleID=mDatabase.push().getKey();
@@ -279,7 +285,7 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
                 if (user != null) {
                     LoggedEmail = user.get(SessionManagement.KEY_EMAIL);
                     TokenID=user.get(SessionManagement.KEY_idToken);
-                    LoggedUserName=user.get(SessionManagement.KEY_EMAIL);
+                    LoggedUserName=user.get(SessionManagement.KEY_NAME);
                 }
                 if (Title != null && Description != null && Category != null &&Date_STR!=null&& ImageFileUri != null && imageName!=null&& LoggedEmail != null&&TokenID!=null&&LoggedUserName!=null) {//username/userID
                     if (AudioFilePath !=null) {
@@ -733,14 +739,14 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             if (firebaseAudioHelper!=null){
                 UploadAudioFileToFirebase(firebaseAudioHelper);
             }
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (HasDataUploaded&&ImageHasUploaded){
-//                        InsertThenNavigate();// save using content provider
-//                    }
-//                }
-//            },1500);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (HasDataUploaded&&ImageHasUploaded){
+                        InsertThenNavigate();// save using content provider
+                    }
+                }
+            },1500);
         }else {
             // Show Snack
             snackbar=NetCut();
@@ -754,14 +760,25 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle(getResources().getString(R.string.uploading));
             progressDialog.show();
-            StorageReference reference=storageReference.child(AUDIO_TYPE+"/"+ UUID.randomUUID().toString());
+            final StorageReference reference=storageReference.child(AUDIO_TYPE+"/"+ UUID.randomUUID().toString());
             reference.putFile(Audio)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
                             Toast.makeText(PostToNewsFeedActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
-                            ImageHasUploaded=true;
+                            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    AudioURL= uri.toString();
+                                    DatabaseReference updateImageUrl=FirebaseDatabase.getInstance()
+                                            .getReference(DATA_KEY)
+                                            .child(currentArticleID);
+                                    updateImageUrl.child(AudioURL_KEY).setValue(AudioURL);
+                                    UserChangeListener(currentArticleID);
+                                    AudioHasUploaded=true;
+                                }
+                            });
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -796,7 +813,6 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
                             Toast.makeText(PostToNewsFeedActivity.this, getResources().getString(R.string.uploaded), Toast.LENGTH_SHORT).show();
-                            ImageHasUploaded=true;
                             reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
@@ -807,6 +823,7 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
                                             .child(currentArticleID);
                                     updateImageUrl.child(ImageURL_KEY).setValue(ImageURL);
                                     UserChangeListener(currentArticleID);
+                                    ImageHasUploaded=true;
                                 }
                             });
                         }
@@ -830,6 +847,13 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
     }
 
     private void InsertThenNavigate() {
+
+        Bundle bundle=new Bundle();
+        bundle.putString(ArticleType,REPORTS);
+        Intent intent=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
+
 //        boolean Inserted=DB.InsertToDiary("",Now.toString(),Thoughts_Str,Status_ImageUrl,Status_Str, LoggedEmail);
 //        if (Inserted){
 //            Intent intent_create=new Intent(this,DiaryActivity.class);

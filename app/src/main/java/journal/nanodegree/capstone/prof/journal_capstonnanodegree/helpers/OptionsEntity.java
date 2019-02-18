@@ -15,6 +15,7 @@ public class OptionsEntity implements Serializable{
     public static String LANGUAGE;
     public static String SECTIONTITLE;
     public static String TITLEFULL;
+    String UserName;
     String ID;
     String AUTHOR, TITLE, DESCRIPTION, URL, URLTOIMAGE, PUBLISHEDAT, NAME;
     Uri ImageFileUri;
@@ -38,12 +39,15 @@ public class OptionsEntity implements Serializable{
         Email = email;
     }
 
-    public OptionsEntity(String articleID, String email, String category, String title, String image_file, String description){
+    public OptionsEntity(String articleID, String email, String user_name, String token_str, String category, String title, String image_file, String audio_file, String description){
         this.ArticleID=articleID;
         this.Email=email;
+        this.UserName=user_name;
+        this.API_TOKEN=token_str;
         this.CategoryName=category;
         this.TITLE=title;
         this.URLTOIMAGE=image_file;
+        this.AudioFile=audio_file;
         this.DESCRIPTION=description;
     }
 

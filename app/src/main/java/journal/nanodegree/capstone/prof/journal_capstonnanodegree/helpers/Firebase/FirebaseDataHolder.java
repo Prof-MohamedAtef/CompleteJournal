@@ -2,26 +2,67 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Fireb
 
 import android.net.Uri;
 
+import java.io.Serializable;
+
 /**
  * Created by Prof-Mohamed Atef on 2/15/2019.
  */
 
-public class FirebaseDataHolder {
+public class FirebaseDataHolder implements Serializable {
+    String AudioURL;
+    String Key;
     String TITLE, DESCRIPTION, CategoryID, PUBLISHEDAT, UserEmail, TokenID, Date, UserName;
     String ImageFileUri;
 
     public FirebaseDataHolder (){
     }
 
-    public FirebaseDataHolder(String title_str, String description_str, String category_id_str, String api_token_str, String image_str, String TokenID,String date, String user_name) {
+    public FirebaseDataHolder(String title_str, String description_str, String category_id_str, String userEmail, String image_str, String TokenID,String date, String user_name) {
         this.TITLE=title_str;
         this.DESCRIPTION=description_str;
         this.CategoryID=category_id_str;
-        this.UserEmail=api_token_str;
+        this.UserEmail=userEmail;
         this.ImageFileUri=image_str;
         this.TokenID=TokenID;
         this.UserName=user_name;
         this.Date=date;
+    }
+
+    public String getAudioURL() {
+        return AudioURL;
+    }
+
+    public void setAudioURL(String audioURL) {
+        AudioURL = audioURL;
+    }
+
+    public FirebaseDataHolder(String key, String title_str, String description_str, String category_id_str, String api_token_str, String audio_file, String image_str, String date, String user_name, String userEmail) {
+        this.Key=key;
+        this.TITLE=title_str;
+        this.DESCRIPTION=description_str;
+        this.CategoryID=category_id_str;
+        this.TokenID=api_token_str;
+        this.AudioURL=audio_file;
+        this.ImageFileUri=image_str;
+        this.Date=date;
+        this.UserName=user_name;
+        this.UserEmail=userEmail;
+    }
+
+    public String getDate() {
+        return Date;
+    }
+
+    public void setDate(String date) {
+        Date = date;
+    }
+
+    public String getUserName() {
+        return UserName;
+    }
+
+    public void setUserName(String userName) {
+        UserName = userName;
     }
 
     public String getTokenID() {

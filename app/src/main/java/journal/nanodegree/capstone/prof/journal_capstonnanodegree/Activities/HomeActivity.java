@@ -51,6 +51,7 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NewsApiFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NoInternetFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.WebhoseApiFragment;
@@ -63,6 +64,8 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsApiRecyclerAdapter.NOTHING_TODO;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         NewsApiFragment.NewsApiSelectedArticleListener,
@@ -349,4 +352,5 @@ NoInternetFragment.onReloadInternetServiceListener{
     public void ReloadInternetService() {
         SnackBasedConnection();
     }
+
 }

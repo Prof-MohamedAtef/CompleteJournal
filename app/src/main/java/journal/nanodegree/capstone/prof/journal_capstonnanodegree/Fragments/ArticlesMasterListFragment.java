@@ -3,6 +3,7 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,13 +13,22 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
+
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.FirebaseRecyclerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsApiRecyclerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.UrgentNewsAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.WebHoseRecyclerAdapter;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseDataHolder;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseReportsAsyncTask;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseHelper;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.NewsApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.GenericAsyncTask.WebHoseApiAsyncTask;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
@@ -35,12 +45,26 @@ import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activit
 
 public class ArticlesMasterListFragment extends android.app.Fragment implements NewsApiAsyncTask.OnNewsTaskCompleted,
         WebHoseApiAsyncTask.OnWebHoseTaskCompleted,
-        NewsApiAsyncTask.OnNewsUrgentTaskCompleted{
+        NewsApiAsyncTask.OnNewsUrgentTaskCompleted,
+FirebaseReportsAsyncTask.OnDownloadCompleted{
     String apiKey;
     private String URL;
     private RecyclerView recyclerView;
     private RecyclerView recyclerView_Horizontal;
     private boolean TwoPane;
+    private DatabaseReference mDatabase;
+    FirebaseHelper firebaseHelper;
+    ArrayList<OptionsEntity> FirebaseArticlesList;
+
+    private FirebaseReportsAsyncTask firebaseReportsAsyncTask;
+    private NewsApiAsyncTask newsApiAsyncTask;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        firebaseHelper=new FirebaseHelper();
+    }
+
     private ArrayList<OptionsEntity> UrgentArticlesList;
     private ArrayList<OptionsEntity> TypesArticlesList;
     private String WebHoseVerifier, NewsApiVerifier;
@@ -71,26 +95,43 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
         NewsApiVerifier=bundle.getString(NEWSAPI_KEY);
         WebHoseVerifier=bundle.getString(WebHoseAPIKEY);
         TwoPane=bundle.getBoolean(TwoPANEExtras_KEY);
-        if (savedInstanceState!=null){
-            if (UrgentArticlesList.isEmpty()){
-                UrgentArticlesList= (ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_UrgentArray);
-                PopulateUrgentArticles(UrgentArticlesList);
-            }
-            if (TypesArticlesList.isEmpty()){
-                TypesArticlesList=(ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_ArticleTypeArray);
-                PopulateTypesList(TypesArticlesList);
-                PopulateTypesList(TypesArticlesList);
-            }
-        }else {
+        FirebaseArticlesList=new ArrayList<>();
+        if (mDatabase==null){
+            FirebaseDatabase database= FirebaseDatabase.getInstance();
+            mDatabase=database.getInstance().getReference();
+        }
+        if (Config.RetrieveFirebaseData){
             VerifyConnection verifyConnection=new VerifyConnection(getActivity());
             verifyConnection.checkConnection();
             if (verifyConnection.isConnected()){
-                ConnectToAPIs();
+                firebaseReportsAsyncTask =new FirebaseReportsAsyncTask(this, getActivity(),mDatabase);
+                firebaseReportsAsyncTask.execute();
+                newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsUrgentTaskCompleted) this, getActivity());
+                newsApiAsyncTask.execute(UrgentURL+apiKey);
+            }
+        }else {
+            if (savedInstanceState!=null){
+                if (UrgentArticlesList.isEmpty()){
+                    UrgentArticlesList= (ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_UrgentArray);
+                    PopulateUrgentArticles(UrgentArticlesList);
+                }
+                if (TypesArticlesList.isEmpty()){
+                    TypesArticlesList=(ArrayList<OptionsEntity>) savedInstanceState.getSerializable(KEY_ArticleTypeArray);
+                    PopulateTypesList(TypesArticlesList);
+                }
             }else {
-                // Show Snack
+                VerifyConnection verifyConnection=new VerifyConnection(getActivity());
+                verifyConnection.checkConnection();
+                if (verifyConnection.isConnected()){
+                    ConnectToAPIs();
+                }else {
+                    // Show Snack
+                }
             }
         }
     }
+
+
 
     private void ConnectToAPIs() {
         if (WebHoseVerifier.equals(URL)){
@@ -99,15 +140,25 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
             webHoseApiAsyncTask.execute(URL);
         }else if (NewsApiVerifier.equals(URL)){
             NewsApiVerifier=null;
-            NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsTaskCompleted) this, getActivity());
+            newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsTaskCompleted) this, getActivity());
             newsApiAsyncTask.execute(URL);
         }
-        NewsApiAsyncTask newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsUrgentTaskCompleted) this, getActivity());
+        newsApiAsyncTask=new NewsApiAsyncTask((NewsApiAsyncTask.OnNewsUrgentTaskCompleted) this, getActivity());
         newsApiAsyncTask.execute(UrgentURL+apiKey);
     }
 
     private void PopulateTypesList(ArrayList<OptionsEntity> typesArticlesList) {
         NewsApiRecyclerAdapter mAdapter=new NewsApiRecyclerAdapter(getActivity(),typesArticlesList, TwoPane);
+        mAdapter.notifyDataSetChanged();
+        RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+        Config.FragmentNewsApiNum=FragmentNewsApiNum;
+    }
+
+    private void PopulateFirebaseList(ArrayList<FirebaseDataHolder> typesArticlesList) {
+        FirebaseRecyclerAdapter mAdapter=new FirebaseRecyclerAdapter(getActivity(),typesArticlesList, TwoPane);
         mAdapter.notifyDataSetChanged();
         RecyclerView.LayoutManager mLayoutManager=new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -167,8 +218,20 @@ public class ArticlesMasterListFragment extends android.app.Fragment implements 
         }
     }
 
+    @Override
+    public void onDownloadTaskCompleted(ArrayList<FirebaseDataHolder> result) {
+        if (result!=null&&result.size()>0){
+            PopulateFirebaseList(result);
+        }
+    }
+
+
     public interface OnSelectedArticleListener {
         void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position);
+    }
+
+    public interface OnFirebaseArticleSelectedListener {
+        void onFirebaseArticleSelected(FirebaseDataHolder firebaseDataHolder, boolean TwoPane, int position);
     }
 
     OnSelectedArticleListener mCallback;

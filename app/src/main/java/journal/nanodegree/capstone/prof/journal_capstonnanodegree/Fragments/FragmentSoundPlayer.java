@@ -26,7 +26,12 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseDataHolder;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.Firebase_KEY;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.TwoPANEExtras_KEY;
 
 /**
  * Created by Prof-Mohamed Atef on 1/10/2019.
@@ -52,6 +57,7 @@ public class FragmentSoundPlayer extends android.app.Fragment implements View.On
     SeekBar seekBar;
     @BindView(R.id.linearLayoutPlay)
     LinearLayout linearLayoutPlay;
+    private FirebaseDataHolder firebaseDataHolder;
 
     private void stopPlaying() {
         try{
@@ -165,19 +171,26 @@ public class FragmentSoundPlayer extends android.app.Fragment implements View.On
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             optionsEntity = (OptionsEntity) savedInstanceState.getSerializable(KEY_optionsEntity);
-            DisplayData(optionsEntity);
+            AudioString=optionsEntity.getAudioFile();
+            DisplayData(AudioString);
         } else if (savedInstanceState == null) {
             final Bundle bundle = getArguments();
             if (bundle != null) {
-                optionsEntity = (OptionsEntity) bundle.getSerializable("twoPaneExtras");
-                DisplayData(optionsEntity);
+                if (Config.RetrieveFirebaseData){
+                    firebaseDataHolder=(FirebaseDataHolder) bundle.getSerializable(TwoPANEExtras_KEY);
+                    AudioString= firebaseDataHolder.getAudioURL();
+                    DisplayData(AudioString);
+                }else {
+                    optionsEntity = (OptionsEntity) bundle.getSerializable(TwoPANEExtras_KEY);
+                    AudioString=optionsEntity.getAudioFile();
+                    DisplayData(AudioString);
+                }
             }
         }
         imageViewPlay.setOnClickListener(this);
     }
 
-    private void DisplayData(OptionsEntity optionsEntity) {
-        AudioString = optionsEntity.getAudioFile();
+    private void DisplayData(String audioString) {
 //        if (AudioString!=null){
 //        AudioUri = Uri.parse(AudioString);
 //        playerView.setVisibility(View.VISIBLE);

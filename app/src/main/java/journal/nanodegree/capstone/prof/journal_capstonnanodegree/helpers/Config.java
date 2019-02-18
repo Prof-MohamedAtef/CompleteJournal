@@ -38,6 +38,7 @@ public class Config {
     public static String apiKey;
     public static ArrayList<String> CategoriesList;
     public static int Category_id;
+    public static boolean RetrieveFirebaseData=false;
 
 
     static {
