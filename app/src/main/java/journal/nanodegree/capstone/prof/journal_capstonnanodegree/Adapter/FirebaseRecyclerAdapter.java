@@ -43,7 +43,7 @@ public class FirebaseRecyclerAdapter extends RecyclerView.Adapter<FirebaseRecycl
     @NonNull
     @Override
     public FirebaseRecyclerAdapter.ViewHOlder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.news_api_list_item, null);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.firebase_reports_list_item, null);
         RecyclerView.ViewHolder viewHolder = new FirebaseRecyclerAdapter.ViewHOlder(view);
         return (FirebaseRecyclerAdapter.ViewHOlder) viewHolder;
     }
@@ -52,17 +52,17 @@ public class FirebaseRecyclerAdapter extends RecyclerView.Adapter<FirebaseRecycl
     public void onBindViewHolder(@NonNull FirebaseRecyclerAdapter.ViewHOlder holder, final int position) {
         final FirebaseDataHolder feedItem = feedItemList.get(position);
         if (feedItem != null) {
-            if (feedItem.getUserName() != null && feedItem.getTITLE() != null) {
+            if (feedItem.getUserName() != null) {
                 holder.Author.setText(feedItem.getUserName());
-                holder.Title.setText(feedItem.getTITLE());
-                if (feedItem.getDESCRIPTION() != null && feedItem.getCategoryID() != null) {
-                    holder.Description.setText(feedItem.getDESCRIPTION());
+                if (feedItem.getCategoryID() != null) {
                     holder.SourceName.setText(feedItem.getCategoryID());
-                    if (feedItem.getDate() != null && feedItem.getImageFileUri() != null) {
+                    if (feedItem.getDate() != null ) {
                         holder.Date.setText(feedItem.getDate());
-                        Picasso.with(mContext).load(feedItem.getImageFileUri())
-                                .error(R.drawable.stanly)
-                                .into(holder.Image);
+                        if (feedItem.getImageFileUri()!=null){
+                            Picasso.with(mContext).load(feedItem.getImageFileUri())
+                                    .error(R.drawable.breaking_news)
+                                    .into(holder.Image);
+                        }
                     } else {
                         holder.Date.setText("");
                     }
@@ -72,7 +72,6 @@ public class FirebaseRecyclerAdapter extends RecyclerView.Adapter<FirebaseRecycl
                 }
             } else {
                 holder.Author.setText("");
-                holder.Title.setText("");
             }
             holder.linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -92,24 +91,21 @@ public class FirebaseRecyclerAdapter extends RecyclerView.Adapter<FirebaseRecycl
 
     class ViewHOlder extends RecyclerView.ViewHolder {
 
-        protected TextView Title;
         protected TextView Author;
         protected TextView Date;
         protected TextView Description;
         protected TextView SourceName;
-        protected ImageView Image;
         protected WebView browser;
         protected LinearLayout linearLayout;
+        protected ImageView Image;
 
         public ViewHOlder(View converview) {
             super(converview);
-            this.Title = (TextView) converview.findViewById(R.id.title);
             this.Author= (TextView) converview.findViewById(R.id.author);
             this.Date= (TextView) converview.findViewById(R.id.date_publish);
-            this.Description= (TextView) converview.findViewById(R.id.description);
             this.SourceName= (TextView) converview.findViewById(R.id.source_name);
-            this.Image =(ImageView)converview.findViewById(R.id.image);
             this.browser= (WebView) converview.findViewById(R.id.webview);
+            this.Image =(ImageView)converview.findViewById(R.id.image);
             this.linearLayout=(LinearLayout)converview.findViewById(R.id.linearLayout);
         }
     }

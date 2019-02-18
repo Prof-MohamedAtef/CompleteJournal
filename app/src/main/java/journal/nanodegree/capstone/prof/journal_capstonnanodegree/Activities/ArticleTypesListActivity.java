@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -7,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -17,6 +19,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.BuildConfig;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentArticleViewer;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentSoundPlayer;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.FragmentUrgentArticles;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.NoInternetFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
@@ -69,6 +72,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     FrameLayout master_list_fragment;
     private boolean ContentProviderHasData;
     public static String Firebase_KEY="Firebase_KEY";
+    public static String Flag_KEY="flag";
 
     @Override
     public void onStart() {
@@ -91,6 +95,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Config.ActivityNum=0;
                 onBackPressed();
             }
         });
@@ -166,6 +171,8 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
                 .commit();
         FragmentSoundPlayer fragmentSoundPlayer=new FragmentSoundPlayer();
         FragmentArticleViewer fragmentArticleViewer=new FragmentArticleViewer();
+        FragmentUrgentArticles fragmentUrgentArticles=new FragmentUrgentArticles();
+        fragmentUrgentArticles.setArguments(bundle2);
         if (findViewById(R.id.coordinator_layout_twoPane)!=null){
             getFragmentManager().beginTransaction()
                     .replace(R.id.Audio_container, fragmentSoundPlayer, Frags_KEY)
@@ -173,10 +180,26 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             getFragmentManager().beginTransaction()
                     .replace(R.id.Article_container, fragmentArticleViewer, Frags_KEY)
                     .commit();
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_urgent, fragmentUrgentArticles, Frags_KEY)
+                    .commit();
         }
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(Flag_KEY,1);
+                setResult(Activity.RESULT_OK,returnIntent);
+                Config.ActivityNum=0;
+                finish();
+                return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onArticleSelected(OptionsEntity optionsEntity, boolean TwoPane, int position) {

@@ -17,7 +17,6 @@ import java.util.ArrayList;
  */
 
 public class Config {
-    public static final URL BASE_URL;
     private static String TAG = Config.class.toString();
     public static Context mContext;
     public static CoordinatorLayout mCoordinatorLayout;
@@ -34,22 +33,11 @@ public class Config {
     public static int ActivityNum;
     public static int FragmentNewsApiNum;
     public static int FragmentWebHoseApiNum;
+    public static int FragmentFirebaseApiNum;
     public static String UrgentURL;
     public static String apiKey;
     public static ArrayList<String> CategoriesList;
     public static int Category_id;
     public static boolean RetrieveFirebaseData=false;
 
-
-    static {
-        URL url = null;
-        try {
-            url = new URL("https://go.udacity.com/xyz-reader-json" );
-        } catch (MalformedURLException ignored) {
-            // TODO: throw a real error
-            Log.e(TAG, "Please check your internet connection.");
-        }
-
-        BASE_URL = url;
-    }
 }

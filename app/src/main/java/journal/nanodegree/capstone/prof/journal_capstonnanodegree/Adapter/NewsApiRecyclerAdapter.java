@@ -42,9 +42,7 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
     ArrayList<OptionsEntity> feedItemList;
     boolean TwoPane;
 
-
     //audio
-
 
     protected Chronometer chronometerTimer;
     protected SeekBar seekBar;
@@ -55,7 +53,6 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
     private int lastProgress = 0;
     private Handler mHandler = new Handler();
     private boolean isPlaying = false;
-
     public static String NOTHING_TODO="NoTHING_TODO";
 
     public NewsApiRecyclerAdapter(Context mContext, ArrayList<OptionsEntity> feedItemList, boolean twoPane) {
@@ -85,7 +82,7 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
                     if (feedItem.getPUBLISHEDAT() != null && feedItem.getURL() != null && feedItem.getURLTOIMAGE() != null) {
                         holder.Date.setText(feedItem.getPUBLISHEDAT());
                         Picasso.with(mContext).load(feedItem.getURLTOIMAGE())
-                                .error(R.drawable.stanly)
+                                .error(R.drawable.breaking_news)
                                 .into(holder.Image);
                     } else {
                         holder.Date.setText("");
@@ -106,7 +103,6 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
                     if (Config.ActivityNum!=0){
                         ((ArticlesMasterListFragment.OnSelectedArticleListener) mContext).onArticleSelected(feedItemList.get(position),TwoPane, position);
                     }
-
                     if (Config.ActivityNum==0){
                         if (feedItem.getURL() != null) {
                             String url=feedItem.getURL();

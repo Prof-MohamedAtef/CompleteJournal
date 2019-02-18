@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
+import android.app.Activity;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -64,6 +65,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Option
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.SessionManagement;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.Flag_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsApiRecyclerAdapter.NOTHING_TODO;
 
@@ -74,6 +76,22 @@ NoInternetFragment.onReloadInternetServiceListener{
     private final String LOG_TAG = HomeActivity.class.getSimpleName();
     private ProgressDialog progressDialog;
     Snackbar snackbar;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK){
+                if(data.getIntExtra(Flag_KEY,0)==1){
+                    Config.ActivityNum=0;
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }
+
     SnackBarClassLauncher snackBarLauncher;
     private Handler handler;
     private Toolbar toolbar;
@@ -180,24 +198,28 @@ NoInternetFragment.onReloadInternetServiceListener{
                         Intent intent2=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
                         intent2.putExtras(bundle);
                         startActivity(intent2);
+
                         return true;
                     case R.id.art_culture:
                         bundle.putString(ArticleType,ARTS);
                         Intent intent3=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
                         intent3.putExtras(bundle);
                         startActivity(intent3);
+
                         return true;
                     case R.id.sports:
                         bundle.putString(ArticleType,SPORTS);
                         Intent intent4=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent4.putExtras(bundle);
                         startActivity(intent4);
+
                         return true;
                     case R.id.reports:
                         bundle.putString(ArticleType,REPORTS);
                         Intent intent5=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent5.putExtras(bundle);
                         startActivity(intent5);
+
                         // get data from content provider or firebase
                         return true;
                     case R.id.food:
@@ -205,36 +227,42 @@ NoInternetFragment.onReloadInternetServiceListener{
                         Intent intent1=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent1.putExtras(bundle);
                         startActivity(intent1);
+
                         return true;
                     case R.id.family:
                         bundle.putString(ArticleType,FAMILY);
                         Intent intent6=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent6.putExtras(bundle);
                         startActivity(intent6);
+
                         return true;
                     case R.id.heritage:
                         bundle.putString(ArticleType,HERITAGE);
                         Intent intent7=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent7.putExtras(bundle);
                         startActivity(intent7);
+
                         return true;
                     case R.id.opinions:
                         bundle.putString(ArticleType,OPINIONS);
                         Intent intent8=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
                         intent8.putExtras(bundle);
                         startActivity(intent8);
+
                         return true;
                     case R.id.technology:
                         bundle.putString(ArticleType,TECHNOLOGY);
                         Intent intent9=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent9.putExtras(bundle);
                         startActivity(intent9);
+
                         return true;
                     case R.id.business:
                         bundle.putString(ArticleType,BUSINESS);
                         Intent intent10=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent10.putExtras(bundle);
                         startActivity(intent10);
+
 //                        webServiceNewsApi.putString("business","https://newsapi.org/v2/top-headlines?country=eg&category=business&apiKey="+apiKey);
 //                        newsApiFragment.setArguments(webServiceNewsApi);
 //                        getSupportFragmentManager().beginTransaction()
