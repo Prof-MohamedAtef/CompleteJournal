@@ -100,6 +100,7 @@
                         android:layout_height="0dp"
                         android:layout_weight="4">
                         <ImageView
+                            android:contentDescription="@string/Article_cover"
                             android:id="@+id/image"
                             android:scaleType="centerCrop"
                             android:layout_width="match_parent"
@@ -139,6 +140,7 @@
                     android:paddingEnd="10dp">
                     <!---->
                     <ImageView
+                        android:contentDescription="@string/play"
                         android:id="@+id/imageViewPlay"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

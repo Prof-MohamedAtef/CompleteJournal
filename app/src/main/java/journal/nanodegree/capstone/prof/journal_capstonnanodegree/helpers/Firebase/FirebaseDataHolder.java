@@ -17,6 +17,9 @@ public class FirebaseDataHolder implements Serializable {
     public FirebaseDataHolder (){
     }
 
+
+
+
     public FirebaseDataHolder(String title_str, String description_str, String category_id_str, String userEmail, String image_str, String TokenID,String date, String user_name) {
         this.TITLE=title_str;
         this.DESCRIPTION=description_str;

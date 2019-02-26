@@ -1,4 +1,4 @@
-package com.example.prof_mohamedatef.contentproviderexperimentalapp.Data;
+package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Data;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class NewsProvider extends ContentProvider {
 
-    static final String PROVIDER_NAME = "com.example.prof_mohamedatef.contentproviderexperimentalapp";
+    static final String PROVIDER_NAME = "journal.nanodegree.capstone.prof.journal_capstonnanodegree";
     static final String URL = "content://" + PROVIDER_NAME + "/news";
     public static final Uri CONTENT_URI = Uri.parse(URL);
 
@@ -138,12 +138,12 @@ public class NewsProvider extends ContentProvider {
              * Get all student records
              */
             case NEWS:
-                return "vnd.android.cursor.dir/vnd.com.example.prof_mohamedatef.contentproviderexperimentalapp.items";
+                return "vnd.android.cursor.dir/vnd.journal.nanodegree.capstone.prof.journal_capstonnanodegree.items";
             /**
              * Get a particular student
              */
             case NEWS_ID:
-                return "vnd.android.cursor.item/vnd.com.example.prof_mohamedatef.contentproviderexperimentalapp.items";
+                return "vnd.android.cursor.item/vnd.journal.nanodegree.capstone.prof.journal_capstonnanodegree.items";
             default:
                 throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -158,7 +158,6 @@ public class NewsProvider extends ContentProvider {
             getContext().getContentResolver().notifyChange(_uri, null);
             return _uri;
         }
-
         throw new SQLException("Failed to add a record into " + uri);
     }
 

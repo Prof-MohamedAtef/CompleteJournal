@@ -30,7 +30,7 @@ android:layout_height="match_parent">
                 android:id="@+id/Article_MainImage"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:contentDescription="@string/app_name"
+                android:contentDescription="@string/source_icon"
                 android:layout_margin="2dp"
                 android:layout_centerVertical="true" />
         </LinearLayout>

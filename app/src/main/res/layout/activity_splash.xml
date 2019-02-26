@@ -16,6 +16,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp">
             <de.hdodenhof.circleimageview.CircleImageView
+                android:contentDescription="@string/app_icon"
                 android:id="@+id/ProfileImage_header_Post"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

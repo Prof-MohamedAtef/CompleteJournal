@@ -33,19 +33,20 @@ import javax.net.ssl.TrustManagerFactory;
 
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Room.ArticlesEntity;
 
 /**
  * Created by Prof-Mohamed Atef on 1/3/2019.
  */
 
-public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<OptionsEntity>> {
+public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<ArticlesEntity>> {
 
     private final String LOG_TAG = NewsApiAsyncTask.class.getSimpleName();
     private ProgressDialog dialog;
     public JSONObject ArticlesJson;
     public JSONArray ArticlesDataArray;
     public JSONObject oneArticleData;
-    private ArrayList<OptionsEntity> list = new ArrayList<OptionsEntity>();
+    private ArrayList<ArticlesEntity> list = new ArrayList<ArticlesEntity>();
 
     String MAIN_LIST="articles";
     String SOURCE="source";
@@ -56,7 +57,7 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     String URL_="url";
     String URL_TO_IMAGE="urlToImage";
     String PUBLISHED_AT="publishedAt";
-    private OptionsEntity optionsEntity;
+    private ArticlesEntity articlesEntity;
     private String Name_STR;
     private String AUTHOR_STR;
     private String TITLE_STR;
@@ -98,7 +99,7 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     }
 
     @Override
-    protected ArrayList<OptionsEntity> doInBackground(String... params) {
+    protected ArrayList<ArticlesEntity> doInBackground(String... params) {
         CertificateFactory cf = null;
 
         try {
@@ -276,7 +277,7 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
     }
 
     @Override
-    protected void onPostExecute(ArrayList<OptionsEntity> result) {
+    protected void onPostExecute(ArrayList<ArticlesEntity> result) {
         super.onPostExecute(result);
         if (result != null) {
             if (onNewsTaskCompleted!=null){
@@ -290,7 +291,7 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
         }
     }
 
-    private ArrayList<OptionsEntity> getArticlesJson(String Articles_JsonSTR) throws JSONException {
+    private ArrayList<ArticlesEntity> getArticlesJson(String Articles_JsonSTR) throws JSONException {
         ArticlesJson = new JSONObject(Articles_JsonSTR );
         ArticlesDataArray= ArticlesJson.getJSONArray(MAIN_LIST);
         list.clear();
@@ -319,17 +320,17 @@ public class NewsApiAsyncTask extends AsyncTask <String, Void, ArrayList<Options
             if (Name_STR==null){
                 Name_STR="";
             }
-            optionsEntity = new OptionsEntity(AUTHOR_STR, TITLE_STR, DESCRIPTION_STR, URL_STR, URL_TO_IMAGE_STR, PUBLISHED_AT_STR, Name_STR);
-            list.add(optionsEntity);
+            articlesEntity = new ArticlesEntity(AUTHOR_STR, TITLE_STR, DESCRIPTION_STR, URL_STR, URL_TO_IMAGE_STR, PUBLISHED_AT_STR, Name_STR);
+            list.add(articlesEntity);
         }
         return list;
     }
 
     public interface OnNewsTaskCompleted{
-        void onNewsApiTaskCompleted(ArrayList<OptionsEntity> result);
+        void onNewsApiTaskCompleted(ArrayList<ArticlesEntity> result);
     }
 
     public interface OnNewsUrgentTaskCompleted{
-        void onNewsUrgentApiTaskCompleted(ArrayList<OptionsEntity> result);
+        void onNewsUrgentApiTaskCompleted(ArrayList<ArticlesEntity> result);
     }
 }

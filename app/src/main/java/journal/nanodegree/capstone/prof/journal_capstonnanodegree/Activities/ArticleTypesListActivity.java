@@ -1,7 +1,10 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -56,6 +59,7 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     public static String URL_KEY="URL_KEY";
     public static String NEWSAPI_KEY="NEWSAPIKEY";
     public static String WebHoseAPIKEY="WenHoseAPIKEY";
+    public static String CategoryName;
     private String Arts;
     private String ArticleType_;
     public static String TwoPANEExtras_KEY="twoPaneExtras";
@@ -73,11 +77,12 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
     private boolean ContentProviderHasData;
     public static String Firebase_KEY="Firebase_KEY";
     public static String Flag_KEY="flag";
+    public static String CATEGORY_NAME="CATEGORY_NAME";
+    public static String KEY_FIREBASE="KEY_FIREBASE";
 
     @Override
     public void onStart() {
         super.onStart();
-
     }
 
     @Override
@@ -93,10 +98,21 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            public Intent intent;
             @Override
             public void onClick(View v) {
-                Config.ActivityNum=0;
+                Config.ActivityNum = 0;
                 onBackPressed();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(ArticleTypesListActivity.this);
+                    intent = new Intent(ArticleTypesListActivity.this, HomeActivity.class);
+                    // Apply activity transition
+                    startActivity(intent, options.toBundle());
+                } else {
+                    // Swap without transition
+                    startActivity(intent);
+                }
+                finish();
             }
         });
         if (findViewById(R.id.coordinator_layout_twoPane)!=null) {
@@ -113,57 +129,67 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
         if (ArticleType_.equals(ARTS)){
             URL=WEBHOSE+token+"&format=json&ts=1543864086443&"+WEBHOSEDETAILS+"title%3A%D9%81%D9%86%D9%88%D9%86";
             WebHoseVerifier=URL;
+            CategoryName=ARTS;
         }else if (ArticleType_.equals(POLITICS)){
             URL=WEBHOSE+token+"&format=json&ts=1543864001127&"+WEBHOSEDETAILS+"title%3A%D8%B3%D9%8A%D8%A7%D8%B3%D8%A9";
             WebHoseVerifier=URL;
+            CategoryName=POLITICS;
         }else if (ArticleType_.equals(SPORTS)){
             URL=NEWSAPI+"sports&apiKey="+apiKey;
             NewsApiVerifier=URL;
+            CategoryName=SPORTS;
         }else if (ArticleType_.equals(REPORTS)){
             // get data from Content Provider or Firebase
-            VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
-            verifyConnection.checkConnection();
-            if (verifyConnection.isConnected()){
+//            VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
+//            verifyConnection.checkConnection();
+//            if (verifyConnection.isConnected()){
                 // get data from firebase
                 Config.RetrieveFirebaseData=true;
-            }else {
+            CategoryName=KEY_FIREBASE;
+//            }else {
                 //if no data in content provider // redirect to add article activity
                 // Show Snack
-                ContentProviderHasData=false;
-                if (!ContentProviderHasData){
-                    snackbar=NetCut();
-                    snackBarLauncher.SnackBarInitializer(snackbar);
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container_frame, noInternetFragment, "newsApi")
-                            .commit();
-                }
-            }
+//                ContentProviderHasData=false;
+//                if (!ContentProviderHasData){
+//                    snackbar=NetCut();
+//                    snackBarLauncher.SnackBarInitializer(snackbar);
+//                    getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.container_frame, noInternetFragment, "newsApi")
+//                            .commit();
+//                }
+//            }
         }else if (ArticleType_.equals(FOOD)){
             URL=WEBHOSE+token+"&format=json&ts=1543863885301&"+WEBHOSEDETAILS+"title%3A";
             WebHoseVerifier=URL;
+            CategoryName=FOOD;
         }else if (ArticleType_.equals(FAMILY)){
             URL=WEBHOSE+token+"&format=json&ts=1545130799659&"+WEBHOSEDETAILS+"title%3A%D8%A7%D9%84%D8%A3%D8%B3%D8%B1%D8%A9";
             WebHoseVerifier=URL;
+            CategoryName=FAMILY;
         }else if (ArticleType_.equals(HERITAGE)){
             URL=WEBHOSE+token+"&format=json&ts=1543863771070&"+WEBHOSEDETAILS+"title%3A%D8%AA%D8%B1%D8%A7%D8%AB";
             WebHoseVerifier=URL;
+            CategoryName=HERITAGE;
         }else if (ArticleType_.equals(OPINIONS)){
             URL=WEBHOSE+token+"&format=json&ts=1543852898977&"+WEBHOSEDETAILS+"title%3A%D8%A2%D8%B1%D8%A7%D8%A1";
             WebHoseVerifier=URL;
+            CategoryName=OPINIONS;
         }else if (ArticleType_.equals(TECHNOLOGY)){
             URL=NEWSAPI+"technology&apiKey="+apiKey;
             NewsApiVerifier=URL;
+            CategoryName=TECHNOLOGY;
         }else if (ArticleType_.equals(BUSINESS)){
             URL=NEWSAPI+"business&apiKey="+apiKey;
             NewsApiVerifier=URL;
+            CategoryName=BUSINESS;
         }
-
 
         Bundle bundle2=new Bundle();
         bundle2.putString(URL_KEY,URL);
         bundle2.putString(NEWSAPI_KEY,NewsApiVerifier);
         bundle2.putString(WebHoseAPIKEY,WebHoseVerifier);
         bundle2.putBoolean(TwoPANEExtras_KEY,mTwoPaneUi);
+        bundle2.putString(CATEGORY_NAME,CategoryName);
         ArticlesMasterListFragment articlesMasterListFragment= new ArticlesMasterListFragment();
         articlesMasterListFragment.setArguments(bundle2);
         getFragmentManager().beginTransaction()
@@ -183,21 +209,6 @@ public class ArticleTypesListActivity extends AppCompatActivity implements Artic
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_urgent, fragmentUrgentArticles, Frags_KEY)
                     .commit();
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(Flag_KEY,1);
-                setResult(Activity.RESULT_OK,returnIntent);
-                Config.ActivityNum=0;
-                finish();
-                return true;
-                default:
-                    return super.onOptionsItemSelected(item);
         }
     }
 

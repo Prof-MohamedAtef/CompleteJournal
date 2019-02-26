@@ -11,6 +11,10 @@ import java.io.Serializable;
  */
 
 public class OptionsEntity implements Serializable{
+
+    public OptionsEntity (){
+
+    }
     public static Object FBAccessToken;
     public static String LANGUAGE;
     public static String SECTIONTITLE;

@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -11,6 +12,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Firebase.FirebaseDataHolder;
 
 /**
  * Created by Prof-Mohamed Atef on 1/1/2019.
@@ -39,5 +42,8 @@ public class Config {
     public static ArrayList<String> CategoriesList;
     public static int Category_id;
     public static boolean RetrieveFirebaseData=false;
-
+    public static int RecyclerPosition;
+    public static String CategoryName;
+    public static ArrayList<FirebaseDataHolder> FirebaseArticlesList;
+    public static Application application;
 }

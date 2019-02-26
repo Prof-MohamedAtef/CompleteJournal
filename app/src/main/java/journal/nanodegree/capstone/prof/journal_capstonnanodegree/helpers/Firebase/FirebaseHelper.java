@@ -17,6 +17,6 @@ public class FirebaseHelper extends Application {
         super.onCreate();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("data");
-        databaseReference.keepSynced(true);
+//        databaseReference.keepSynced(true);
     }
 }

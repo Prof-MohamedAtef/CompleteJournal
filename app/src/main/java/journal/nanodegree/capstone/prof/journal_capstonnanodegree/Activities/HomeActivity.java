@@ -1,9 +1,11 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,6 +14,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -59,6 +62,7 @@ import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.Webh
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Listeners.SnackBarLauncher;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Data.NewsProvider;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.SnackBarClassLauncher;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Network.VerifyConnection;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
@@ -68,6 +72,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.Flag_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter.NewsApiRecyclerAdapter.NOTHING_TODO;
+import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Data.NewsProvider.CONTENT_URI;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         NewsApiFragment.NewsApiSelectedArticleListener,
@@ -76,21 +81,6 @@ NoInternetFragment.onReloadInternetServiceListener{
     private final String LOG_TAG = HomeActivity.class.getSimpleName();
     private ProgressDialog progressDialog;
     Snackbar snackbar;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            if(resultCode == Activity.RESULT_OK){
-                if(data.getIntExtra(Flag_KEY,0)==1){
-                    Config.ActivityNum=0;
-                }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-    }
 
     SnackBarClassLauncher snackBarLauncher;
     private Handler handler;
@@ -106,7 +96,7 @@ NoInternetFragment.onReloadInternetServiceListener{
     WebhoseApiFragment webhoseApiFragment;
     public static String POLITICS="Politics";
     public static String ARTS="arts";
-    public static String SPORTS="sports";
+    public static String SPORTS="Sports";
     public static String REPORTS="reports";
     public static String FOOD="food";
     public static String FAMILY="family";
@@ -129,6 +119,8 @@ NoInternetFragment.onReloadInternetServiceListener{
     private int Activity_Num=0;
     View view;
     private String Urgent_KEY="urgent";
+    private Cursor cursor;
+    private boolean HasSavedData;
 //    RelativeLayout home_linear;
 
 
@@ -188,7 +180,9 @@ NoInternetFragment.onReloadInternetServiceListener{
                 switch (menuItem.getItemId()){
                     case R.id.publish:
                         Intent intent=new Intent(getApplicationContext(),PostToNewsFeedActivity.class);
-                        startActivity(intent);
+//                        startExplodeTransition(intent);
+//                        startActivity(intent);
+                        startSharedElementTransition(ProfilePicView, intent);
                         return true;
                     case R.id.urgent:
                         displayUrgent();
@@ -197,72 +191,73 @@ NoInternetFragment.onReloadInternetServiceListener{
                         bundle.putString(ArticleType,POLITICS);
                         Intent intent2=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
                         intent2.putExtras(bundle);
-                        startActivity(intent2);
-
+//                        startActivity(intent2);
+                        startExplodeTransition(intent2);
                         return true;
                     case R.id.art_culture:
                         bundle.putString(ArticleType,ARTS);
                         Intent intent3=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
                         intent3.putExtras(bundle);
-                        startActivity(intent3);
+                        startExplodeTransition(intent3);
+//                        startActivity(intent3);
 
                         return true;
                     case R.id.sports:
                         bundle.putString(ArticleType,SPORTS);
                         Intent intent4=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent4.putExtras(bundle);
-                        startActivity(intent4);
-
+//                        startActivity(intent4);
+                        startExplodeTransition(intent4);
                         return true;
                     case R.id.reports:
                         bundle.putString(ArticleType,REPORTS);
                         Intent intent5=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent5.putExtras(bundle);
-                        startActivity(intent5);
-
+//                        startActivity(intent5);
+                        startExplodeTransition(intent5);
                         // get data from content provider or firebase
                         return true;
                     case R.id.food:
                         bundle.putString(ArticleType,FOOD);
                         Intent intent1=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent1.putExtras(bundle);
-                        startActivity(intent1);
-
+//                        startActivity(intent1);
+                        startExplodeTransition(intent1);
                         return true;
                     case R.id.family:
                         bundle.putString(ArticleType,FAMILY);
                         Intent intent6=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent6.putExtras(bundle);
-                        startActivity(intent6);
-
+//                        startActivity(intent6);
+                        startExplodeTransition(intent6);
                         return true;
                     case R.id.heritage:
                         bundle.putString(ArticleType,HERITAGE);
                         Intent intent7=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent7.putExtras(bundle);
                         startActivity(intent7);
-
+                        startExplodeTransition(intent7);
                         return true;
                     case R.id.opinions:
                         bundle.putString(ArticleType,OPINIONS);
                         Intent intent8=new Intent(getApplicationContext(),ArticleTypesListActivity.class);
                         intent8.putExtras(bundle);
                         startActivity(intent8);
-
+                        startExplodeTransition(intent8);
                         return true;
                     case R.id.technology:
                         bundle.putString(ArticleType,TECHNOLOGY);
                         Intent intent9=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent9.putExtras(bundle);
                         startActivity(intent9);
-
+                        startExplodeTransition(intent9);
                         return true;
                     case R.id.business:
                         bundle.putString(ArticleType,BUSINESS);
                         Intent intent10=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
                         intent10.putExtras(bundle);
                         startActivity(intent10);
-
+                        startExplodeTransition(intent10);
 //                        webServiceNewsApi.putString("business","https://newsapi.org/v2/top-headlines?country=eg&category=business&apiKey="+apiKey);
 //                        newsApiFragment.setArguments(webServiceNewsApi);
 //                        getSupportFragmentManager().beginTransaction()
@@ -309,21 +304,57 @@ NoInternetFragment.onReloadInternetServiceListener{
         SnackBasedConnection();
     }
 
+    private boolean checkSavedOfflineData(){
+        cursor = managedQuery(CONTENT_URI, null, null, null, NewsProvider.CATEGORY);
+        if (cursor.moveToFirst()) {
+            // THERE ARE SAVED DATA
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     private void SnackBasedConnection() {
         VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
         verifyConnection.checkConnection();
         if (verifyConnection.isConnected()){
             displayUrgent();
         }else {
-            // Show Snack
-            snackbar=NetCut();
-            snackBarLauncher.SnackBarInitializer(snackbar);
-            Config.UrgentURL=UrgentURL;
-            Config.apiKey=apiKey;
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container_frame, noInternetFragment, "newsApi")
-                    .commit();
+            HasSavedData=checkSavedOfflineData();
+            if (HasSavedData){
+                displayUrgent();
+            }else {
+                snackbar=NetCut();
+                snackBarLauncher.SnackBarInitializer(snackbar);
+                Config.UrgentURL=UrgentURL;
+                Config.apiKey=apiKey;
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container_frame, noInternetFragment, "newsApi")
+                        .commit();
+            }
         }
+    }
+
+    private void startSharedElementTransition(ImageView profileImage, Intent intent){
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, profileImage, getResources().getString(R.string.profile_img));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent, options.toBundle());
+        }else {
+            startActivity(intent);
+        }
+    }
+
+    private void startExplodeTransition(Intent intent){
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(HomeActivity.this);
+//        intent= new Intent(HomeActivity.this,context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Apply activity transition
+            startActivity(intent, options.toBundle());
+        } else {
+            // Swap without transition
+            startActivity(intent);
+        }
+        finish();
     }
 
     private void displayUrgent() {

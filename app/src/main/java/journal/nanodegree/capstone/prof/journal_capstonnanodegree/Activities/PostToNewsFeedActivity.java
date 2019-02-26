@@ -1,5 +1,6 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -40,6 +41,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -205,7 +207,6 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
     private String TokenID;
     SnackBarClassLauncher snackBarLauncher;
     Snackbar snackbar;
-    private String Categories_URL="http://fla4news.com/news/api/v1/categories";
     private String POSTED_ARTICLE="PostedArticle";
 
     private DatabaseReference mDatabase;
@@ -254,6 +255,7 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
                 Log.e(LOG_TAG, "Failed to read options", databaseError.toException());
             }
         });
+//        mDatabase.keepSynced(true);
     }
 
     @Override
@@ -261,15 +263,14 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_to_news_feed);
         ButterKnife.bind(this);
-
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
             getPermissionToRecordAudio();
         }
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        snackBarLauncher=new SnackBarClassLauncher();
         if (mDatabase==null){
             FirebaseDatabase database= FirebaseDatabase.getInstance();
             mDatabase=database.getReference(DATA_KEY);
-            mDatabase.keepSynced(true);
+//            mDatabase.keepSynced(true);
         }
         if (storage==null){
             storage = FirebaseStorage.getInstance();
@@ -311,13 +312,20 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             @Override
             public void onClick(View v) {
                 onBackPressed();
+                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(PostToNewsFeedActivity.this);
+                Intent intent = new Intent(PostToNewsFeedActivity.this, HomeActivity.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // Apply activity transition
+                    startActivity(intent, options.toBundle());
+                } else {
+                    // Swap without transition
+                    startActivity(intent);
+                }
+                finish();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-
-
         Categories_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -330,6 +338,7 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        Categories_spinner.requestFocus();
 //        connectToApi();
 
         ArrayList<String> PostTypes = new ArrayList<String>();
@@ -352,22 +361,15 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             @Override
             protected void computeTime() {
             }
-
             @Override
             protected void computeFields() {
-
             }
-
             @Override
             public void add(int field, int amount) {
-
             }
-
             @Override
             public void roll(int field, boolean up) {
-
             }
-
             @Override
             public int getMinimum(int field) {
                 return 0;
@@ -396,7 +398,6 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             }
         });
 
-
         sessionManagement=new SessionManagement(getApplicationContext());
         user=sessionManagement.getUserDetails();
 
@@ -415,19 +416,6 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             }
         }
     }
-
-//    private void connectToApi() {
-//        VerifyConnection verifyConnection=new VerifyConnection(getApplicationContext());
-//        verifyConnection.checkConnection();
-//        if (verifyConnection.isConnected()){
-//            CategoryAsyncTask categoryAsyncTask=new CategoryAsyncTask(this, getApplicationContext());
-//            categoryAsyncTask.execute(Categories_URL);
-//        }else {
-//            // Show Snack
-//            snackbar=NetCut();
-//            snackBarLauncher.SnackBarInitializer(snackbar);
-//        }
-//    }
 
     private Snackbar NetCut() {
         return snackbar= Snackbar
@@ -451,7 +439,6 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
-
             // The permission is NOT already granted.
             // Check if the user has been asked about this permission already and denied
             // it. If so, we want to give more explanation about why the permission is needed.
@@ -459,7 +446,6 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
             // This will show the standard permission request dialog UI
             requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     RECORD_AUDIO_REQUEST_CODE);
-
         }
     }
 
@@ -746,7 +732,7 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
                         InsertThenNavigate();// save using content provider
                     }
                 }
-            },1500);
+            },5000);
         }else {
             // Show Snack
             snackbar=NetCut();
@@ -847,13 +833,11 @@ public class PostToNewsFeedActivity extends AppCompatActivity implements View.On
     }
 
     private void InsertThenNavigate() {
-
         Bundle bundle=new Bundle();
         bundle.putString(ArticleType,REPORTS);
         Intent intent=new Intent(getApplicationContext(), ArticleTypesListActivity.class);
         intent.putExtras(bundle);
         startActivity(intent);
-
 //        boolean Inserted=DB.InsertToDiary("",Now.toString(),Thoughts_Str,Status_ImageUrl,Status_Str, LoggedEmail);
 //        if (Inserted){
 //            Intent intent_create=new Intent(this,DiaryActivity.class);

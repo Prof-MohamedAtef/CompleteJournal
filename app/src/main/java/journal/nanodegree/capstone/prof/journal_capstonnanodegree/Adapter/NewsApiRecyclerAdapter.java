@@ -2,8 +2,8 @@ package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -23,12 +23,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import butterknife.ButterKnife;
+
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.WebViewerActivity;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.Fragments.ArticlesMasterListFragment;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.R;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Config;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Data.NewsProvider;
 import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.OptionsEntity;
+import journal.nanodegree.capstone.prof.journal_capstonnanodegree.helpers.Room.ArticlesEntity;
+
 import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities.ArticleTypesListActivity.URL_KEY;
 
 /**
@@ -37,9 +40,12 @@ import static journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activit
 
 public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecyclerAdapter.ViewHOlder> implements Serializable{
 
+    ArticlesEntity articlesEntity;
+
     private final String LOG_TAG = NewsApiRecyclerAdapter.class.getSimpleName();
+    private Cursor mCursor;
     Context mContext;
-    ArrayList<OptionsEntity> feedItemList;
+    ArrayList<ArticlesEntity> feedItemList;
     boolean TwoPane;
 
     //audio
@@ -55,10 +61,29 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
     private boolean isPlaying = false;
     public static String NOTHING_TODO="NoTHING_TODO";
 
-    public NewsApiRecyclerAdapter(Context mContext, ArrayList<OptionsEntity> feedItemList, boolean twoPane) {
+    public NewsApiRecyclerAdapter(Context mContext, ArrayList<ArticlesEntity> feedItemList, boolean twoPane) {
         this.mContext = mContext;
         this.feedItemList = feedItemList;
         TwoPane = twoPane;
+    }
+
+    public NewsApiRecyclerAdapter(Context mContext, Cursor cursor, boolean twoPane) {
+        this.mContext = mContext;
+        this.mCursor= cursor;
+        TwoPane = twoPane;
+        if (mCursor.moveToFirst()){
+            for (cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()){
+                articlesEntity =new ArticlesEntity();
+                articlesEntity.setAUTHOR(cursor.getString(cursor.getColumnIndex(NewsProvider.AUTHOR)));
+                articlesEntity.setTITLE(cursor.getString(cursor.getColumnIndex(NewsProvider.TITLE)));
+                articlesEntity.setDESCRIPTION(cursor.getString(cursor.getColumnIndex(NewsProvider.DESCRIPTION)));
+                articlesEntity.setARTICLE_URL(cursor.getString(cursor.getColumnIndex(NewsProvider.ARTICLE_URL)));
+                articlesEntity.setIMAGE_URL(cursor.getString(cursor.getColumnIndex(NewsProvider.IMAGE_URL)));
+                articlesEntity.setPUBLISHED_AT(cursor.getString(cursor.getColumnIndex(NewsProvider.PUBLISHED_AT)));
+                articlesEntity.setSOURCE_NAME(cursor.getString(cursor.getColumnIndex(NewsProvider.SOURCE_NAME)));
+                feedItemList.add(articlesEntity);
+            }
+        }
     }
 
     @NonNull
@@ -71,17 +96,29 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
 
     @Override
     public void onBindViewHolder(@NonNull final NewsApiRecyclerAdapter.ViewHOlder holder, final int position) {
-        final OptionsEntity feedItem = feedItemList.get(position);
-        if (feedItem != null) {
+//        if (mCursor != null) {
+//            if (mCursor.moveToFirst()) {
+//                holder.Author.setText(mCursor.getString(mCursor.getColumnIndex(NewsProvider.AUTHOR)));
+//                holder.Title.setText(mCursor.getString(mCursor.getColumnIndex(NewsProvider.TITLE)));
+//                holder.Description.setText(mCursor.getString(mCursor.getColumnIndex(NewsProvider.DESCRIPTION)));
+//                holder.SourceName.setText(mCursor.getString(mCursor.getColumnIndex(NewsProvider.SOURCE_NAME)));
+//                holder.Date.setText(mCursor.getString(mCursor.getColumnIndex(NewsProvider.PUBLISHED_AT)));
+//                Picasso.with(mContext).load(mCursor.getString(mCursor.getColumnIndex(NewsProvider.IMAGE_URL)))
+//                        .error(R.drawable.breaking_news)
+//                        .into(holder.Image);
+//            }
+//        } else
+            if (feedItemList != null && feedItemList.size() > 0) {
+            final ArticlesEntity feedItem = feedItemList.get(position);
             if (feedItem.getAUTHOR() != null && feedItem.getTITLE() != null) {
                 holder.Author.setText(feedItem.getAUTHOR());
                 holder.Title.setText(feedItem.getTITLE());
-                if (feedItem.getDESCRIPTION() != null && feedItem.getNAME() != null) {
+                if (feedItem.getDESCRIPTION() != null && feedItem.getSOURCE_NAME() != null) {
                     holder.Description.setText(feedItem.getDESCRIPTION());
-                    holder.SourceName.setText(feedItem.getNAME());
-                    if (feedItem.getPUBLISHEDAT() != null && feedItem.getURL() != null && feedItem.getURLTOIMAGE() != null) {
-                        holder.Date.setText(feedItem.getPUBLISHEDAT());
-                        Picasso.with(mContext).load(feedItem.getURLTOIMAGE())
+                    holder.SourceName.setText(feedItem.getSOURCE_NAME());
+                    if (feedItem.getPUBLISHED_AT() != null && feedItem.getARTICLE_URL() != null && feedItem.getIMAGE_URL() != null) {
+                        holder.Date.setText(feedItem.getPUBLISHED_AT());
+                        Picasso.with(mContext).load(feedItem.getIMAGE_URL())
                                 .error(R.drawable.breaking_news)
                                 .into(holder.Image);
                     } else {
@@ -95,43 +132,43 @@ public class NewsApiRecyclerAdapter extends RecyclerView.Adapter<NewsApiRecycler
                 holder.Author.setText("");
                 holder.Title.setText("");
             }
-            holder.linearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // if two pane ---- > Web View
-                    // if PHone --------> Web View
-                    if (Config.ActivityNum!=0){
-                        ((ArticlesMasterListFragment.OnSelectedArticleListener) mContext).onArticleSelected(feedItemList.get(position),TwoPane, position);
-                    }
-                    if (Config.ActivityNum==0){
-                        if (feedItem.getURL() != null) {
-                            String url=feedItem.getURL();
-                            Intent intent=new Intent(mContext,WebViewerActivity.class);
-                            intent.putExtra(URL_KEY,url);
-                            mContext.startActivity(intent);
+                holder.linearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // if two pane ---- > Web View
+                        // if PHone --------> Web View
+                        if (Config.ActivityNum != 0&&feedItemList!=null) {
+                            ((ArticlesMasterListFragment.OnSelectedArticleListener) mContext).onArticleSelected(feedItemList.get(position), TwoPane, position);
                         }
-                    }else {
+                        if (Config.ActivityNum == 0) {
+                            if (feedItem.getARTICLE_URL() != null) {
+                                String url = feedItem.getARTICLE_URL();
+                                Intent intent = new Intent(mContext, WebViewerActivity.class);
+                                intent.putExtra(URL_KEY, url);
+                                mContext.startActivity(intent);
+                            }
+                        } else {
                         /*
                         Do nothing
                          */
-                        Log.e(LOG_TAG, NOTHING_TODO);
+                            Log.e(LOG_TAG, NOTHING_TODO);
+                        }
                     }
-                }
-            });
-
-            holder.imageViewPlay.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!isPlaying&&fileName!=null){
-                        isPlaying=true;
-                        startPlaying();
-                    }else {
-                        isPlaying=false;
-                        stopPlaying();
-                    }
-                }
-            });
+                });
         }
+        holder.imageViewPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isPlaying && fileName != null) {
+                    isPlaying = true;
+                    startPlaying();
+                } else {
+                    isPlaying = false;
+                    stopPlaying();
+                }
+            }
+        });
+
     }
 
     @Override

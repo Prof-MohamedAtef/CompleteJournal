@@ -1,7 +1,9 @@
 package journal.nanodegree.capstone.prof.journal_capstonnanodegree.Activities;
 
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,18 +23,35 @@ public class SplashActivity extends AppCompatActivity {
         if (LoggedEmail != null&&LoggedUserName!=null) {
             new Handler().postDelayed(new Runnable() {
                 @Override
-                public void run() {hideProgressDialog();
-                    startActivity(new Intent(SplashActivity.this, HomeActivity.class));
+                public void run() {
+                    hideProgressDialog();
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(SplashActivity.this);
+                    Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        // Apply activity transition
+                        startActivity(intent, options.toBundle());
+                    } else {
+                        // Swap without transition
+                        startActivity(intent);
+                    }
                     finish();
                 }
-            },5500);
+            }, 5500);
         }
         else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(SplashActivity.this);
+                    Intent intent= new Intent(SplashActivity.this, AuthenticationActivity.class);
                     hideProgressDialog();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        // Apply activity transition
+                        startActivity(intent, options.toBundle());
+                    } else {
+                        // Swap without transition
+                        startActivity(intent);
+                    }
                     finish();
                 }
             },5500);

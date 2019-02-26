@@ -24,6 +24,7 @@ public class UrgentWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.urgent_widget);
         views.setTextViewText(R.id.appwidget_text, widgetText);
         views.setOnClickPendingIntent(R.id.appwidget_text,pendingIntent);
+        appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     @Override

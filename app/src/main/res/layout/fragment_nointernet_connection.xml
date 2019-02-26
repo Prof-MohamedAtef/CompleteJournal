@@ -11,6 +11,7 @@
     android:gravity="center"
     android:orientation="vertical">
     <ImageView
+        android:contentDescription="@string/no_internet"
         android:src="@drawable/unavailable_cloud"
         android:layout_width="match_parent"
         android:layout_height="150dp"
@@ -49,6 +50,7 @@
             android:layout_weight="1.3"
             android:layout_height="match_parent">
             <ImageView
+                android:contentDescription="@string/reload"
                 android:id="@+id/btn_reload"
                 android:src="@drawable/reload"
                 android:layout_width="match_parent"
